@@ -1,0 +1,13 @@
+a dolphin (imported model)
+a terrain plane with height mapping (solid color)
+
+The dolphin should follow the terrain as it moves.
+
+press:
+  gamepad B to move the dolphin forward
+  left joystick to turn the dolphin right
+  right joystick to orbit avatar
+  EQU (=) to toggle window size.
+  ESC to abort.
+
+Try experimenting with different terrain, heightmaps, textures, etc.
