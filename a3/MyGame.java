@@ -21,6 +21,8 @@ import net.java.games.input.Component.Identifier.*;
 // test 2
 // test 3
 
+//Kobe's
+
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
