@@ -18,7 +18,8 @@ import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 
 // test commit
-//test too
+// test 2
+// test 3
 
 public class MyGame extends VariableFrameRateGame
 {
