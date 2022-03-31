@@ -18,6 +18,8 @@ import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 
 // test commit
+//test too
+
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
