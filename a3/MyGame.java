@@ -30,7 +30,7 @@ import tage.networking.IGameConnection.ProtocolType;
 // test 3
 // test 4
 
-//Kobe's
+//Justin's
 
 public class MyGame extends VariableFrameRateGame
 {
