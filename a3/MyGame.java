@@ -77,11 +77,13 @@ public class MyGame extends VariableFrameRateGame
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		terrS = new TerrainPlane(1000);
+		ghostS = new ImportedModel("dolphinHighPoly.obj");
 	}
 
 	@Override
 	public void loadTextures()
 	{	doltx = new TextureImage("Dolphin_HighPolyUV.png");
+		ghostT = new TextureImage("redDolphin.jpg");
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
 	}
@@ -216,7 +218,7 @@ public class MyGame extends VariableFrameRateGame
 			protClient.processPackets();
 	}
 
-	public Vector3f getPlayerPosition() { return avatar.getWorldLocation(); }
+	public Vector3f getPlayerPosition() { return dolphin.getWorldLocation(); }
 
 	public void setIsConnected(boolean value) { this.isClientConnected = value; }
 	
