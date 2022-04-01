@@ -30,7 +30,7 @@ import tage.networking.IGameConnection.ProtocolType;
 // test 3
 
 //Kobe's
-
+// test
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
