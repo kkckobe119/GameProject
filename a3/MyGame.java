@@ -17,6 +17,14 @@ import org.joml.*;
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 
+import java.util.UUID;
+import java.net.InetAddress;
+
+import java.net.UnknownHostException;
+import net.java.games.input.*;
+import net.java.games.input.Component.Identifier.*;
+import tage.networking.IGameConnection.ProtocolType;
+
 // test commit
 // test 2
 // test 3
@@ -27,22 +35,39 @@ public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
 	private InputManager im;
+	private GhostManager gm;
 
 	private int counter=0;
 	private Vector3f currentPosition;
 	private double startTime, prevTime, elapsedTime, amt;
 
-	private GameObject dolphin, terr;
-	private ObjShape dolS, terrS;
-	private TextureImage doltx, hills, grass;
+	private GameObject dolphin, terr, avatar;
+	private ObjShape ghostS, dolS, terrS;
+	private TextureImage ghostT, doltx, hills, grass;
 	private Light lightP;
 	private int fluffyClouds, lakeIslands; // skyboxes
 	private CameraOrbitController orbitController;
 
-	public MyGame() { super(); }
+	private String serverAddress;
+	private int serverPort;
+	private ProtocolType serverProtocol;
+	private ProtocolClient protClient;
+	private boolean isClientConnected = false;
+
+
+	public MyGame(String serverAddress, int serverPort, String protocol) { 
+		super();
+		gm = new GhostManager(this);
+		this.serverAddress = serverAddress;
+		this.serverPort = serverPort;
+		if (protocol.toUpperCase().compareTo("TCP") == 0)
+			this.serverProtocol = ProtocolType.TCP;
+		else
+			this.serverProtocol = ProtocolType.UDP;
+	}
 
 	public static void main(String[] args)
-	{	MyGame game = new MyGame();
+	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
@@ -52,11 +77,13 @@ public class MyGame extends VariableFrameRateGame
 	public void loadShapes()
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		terrS = new TerrainPlane(1000);
+		ghostS = new ImportedModel("dolphinHighPoly.obj");
 	}
 
 	@Override
 	public void loadTextures()
 	{	doltx = new TextureImage("Dolphin_HighPolyUV.png");
+		ghostT = new TextureImage("redDolphin.jpg");
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
 	}
@@ -113,6 +140,7 @@ public class MyGame extends VariableFrameRateGame
 		// ----------------- initialize camera ----------------
 		Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
 		orbitController = new CameraOrbitController(c, dolphin, gpName, engine);
+		setupNetworking();
 	}
 
 	@Override
@@ -154,5 +182,52 @@ public class MyGame extends VariableFrameRateGame
 	//	dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 
 		orbitController.updateCameraPosition();
+		processNetworking((float)elapsedTime);
+	}
+
+
+	// ---------- NETWORKING SECTION ----------------
+
+	public ObjShape getGhostShape() { return ghostS; }
+	public TextureImage getGhostTexture() { return ghostT; }
+	public GhostManager getGhostManager() { return gm; }
+	public Engine getEngine() { return engine; }
+	
+	private void setupNetworking()
+	{	isClientConnected = false;	
+		try 
+		{	protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+		} 	catch (UnknownHostException e) 
+		{	e.printStackTrace();
+		}	catch (IOException e) 
+		{	e.printStackTrace();
+		}
+		if (protClient == null)
+		{	System.out.println("missing protocol host");
+		}
+		else
+		{	// Send the initial join message with a unique identifier for this client
+			System.out.println("sending join message to protocol host");
+			protClient.sendJoinMessage();
+		}
+	}
+	
+	protected void processNetworking(float elapsTime)
+	{	// Process packets received by the client from the server
+		if (protClient != null)
+			protClient.processPackets();
+	}
+
+	public Vector3f getPlayerPosition() { return dolphin.getWorldLocation(); }
+
+	public void setIsConnected(boolean value) { this.isClientConnected = value; }
+	
+	private class SendCloseConnectionPacketAction extends AbstractInputAction
+	{	@Override
+		public void performAction(float time, net.java.games.input.Event evt) 
+		{	if(protClient != null && isClientConnected == true)
+			{	protClient.sendByeMessage();
+			}
+		}
 	}
 }
