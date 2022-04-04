@@ -17,7 +17,6 @@ import org.joml.*;
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 
-import java.util.UUID;
 import java.net.InetAddress;
 
 import java.net.UnknownHostException;
@@ -25,12 +24,14 @@ import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 import tage.networking.IGameConnection.ProtocolType;
 
-// test commit
-// test 2
-// test 3
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
-//Kobe's
-// test
+import java.util.*;
+import java.util.List;
+
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
@@ -53,6 +54,7 @@ public class MyGame extends VariableFrameRateGame
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
 	private boolean isClientConnected = false;
+	private double test;
 
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
@@ -66,11 +68,48 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.UDP;
 	}
 
-	public static void main(String[] args)
-	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+	public static void main(String[] args){
+		MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+
+		ScriptEngineManager factory = new ScriptEngineManager();
+		String scriptFileName = "scripts/test.js";
+
+		// get a list of the script engines on this platform
+		List<ScriptEngineFactory> list = factory.getEngineFactories();
+	
+		System.out.println("Script Engine Factories found:");
+		for (ScriptEngineFactory f : list)
+		{ System.out.println("  Name = " + f.getEngineName()
+						   + "  language = " + f.getLanguageName()
+						   + "  extensions = " + f.getExtensions());
+		}
+	
+		// get the JavaScript engine
+		ScriptEngine jsEngine = factory.getEngineByName("js");
+		// run the script
+		game.executeScript(jsEngine, scriptFileName);
+		System.out.println("1---------------------------------");
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
+	}
+
+	private void executeScript(ScriptEngine engine, String scriptFileName)
+	{
+	  try
+	  { FileReader fileReader = new FileReader(scriptFileName);
+		engine.eval(fileReader);         //execute all the script statements in the file
+		test = (Double)engine.get("test");
+		fileReader.close();
+	  }
+	  catch (FileNotFoundException e1)
+	  { System.out.println(scriptFileName + " not found " + e1); }
+	  catch (IOException e2)
+	  { System.out.println("IO problem with " + scriptFileName + e2); }
+	  catch (ScriptException e3) 
+	  { System.out.println("ScriptException in " + scriptFileName + e3); }
+	  catch (NullPointerException e4)
+	  { System.out.println ("Null ptr exception reading " + scriptFileName + e4); }
 	}
 
 	@Override
@@ -109,8 +148,9 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	@Override
-	public void initializeGame()
-	{	prevTime = System.currentTimeMillis();
+	public void initializeGame(){
+		System.out.println(test);
+		prevTime = System.currentTimeMillis();
 		startTime = System.currentTimeMillis();
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
