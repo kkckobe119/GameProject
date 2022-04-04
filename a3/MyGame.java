@@ -32,8 +32,6 @@ import javax.script.ScriptException;
 import java.util.*;
 import java.util.List;
 
-//Justin's
-
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
