@@ -54,8 +54,16 @@ public class MyGame extends VariableFrameRateGame
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
 	private boolean isClientConnected = false;
-	private double test;
 
+	private double avatarX;
+	private double avatarY;
+	private double avatarZ;
+	private double avatarRot;
+
+	private double terrainPos;
+	private double terrainScaleX;
+	private double terrainScaleY;
+	private double terrainScaleZ;
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
 		super();
@@ -72,7 +80,7 @@ public class MyGame extends VariableFrameRateGame
 		MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
 
 		ScriptEngineManager factory = new ScriptEngineManager();
-		String scriptFileName = "scripts/test.js";
+		String scriptFileName = "scripts/initialize.js";
 
 		// get a list of the script engines on this platform
 		List<ScriptEngineFactory> list = factory.getEngineFactories();
@@ -96,10 +104,18 @@ public class MyGame extends VariableFrameRateGame
 
 	private void executeScript(ScriptEngine engine, String scriptFileName)
 	{
-	  try
-	  { FileReader fileReader = new FileReader(scriptFileName);
+	  try{
+		FileReader fileReader = new FileReader(scriptFileName);
 		engine.eval(fileReader);         //execute all the script statements in the file
-		test = (Double)engine.get("test");
+		avatarX = (double)engine.get("avatarX");
+		avatarY = (double)engine.get("avatarY");
+		avatarZ = (double)engine.get("avatarZ");
+		avatarRot = (double)engine.get("avatarRot");
+
+		terrainPos = (double)engine.get("terrainPos");
+		terrainScaleX = (double)engine.get("terrainScaleX");
+		terrainScaleY = (double)engine.get("terrainScaleY");
+		terrainScaleZ = (double)engine.get("terrainScaleZ");
 		fileReader.close();
 	  }
 	  catch (FileNotFoundException e1)
@@ -133,23 +149,23 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin avatar
 		dolphin = new GameObject(GameObject.root(), dolS, doltx);
-		initialTranslation = (new Matrix4f()).translation(-2f,0f,-2f);
+		initialTranslation = (new Matrix4f()).translation((float)avatarX, (float)avatarY, (float)avatarZ);
 		dolphin.setLocalTranslation(initialTranslation);
-		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(180.0f));
+		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians((float)avatarRot));
 		dolphin.setLocalRotation(initialRotation);
 
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
-		initialTranslation = (new Matrix4f()).translation(0f,0f,0f);
+		initialTranslation = (new Matrix4f()).translation((float)terrainPos,(float)terrainPos,(float)terrainPos);
 		terr.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling(20.0f, 1.0f, 20.0f);
+		initialScale = (new Matrix4f()).scaling((float)terrainScaleX, (float)terrainScaleY, (float)terrainScaleZ);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
 	}
 
 	@Override
 	public void initializeGame(){
-		System.out.println(test);
+		//System.out.println(avatarX + " " + avatarY + " " + avatarZ);
 		prevTime = System.currentTimeMillis();
 		startTime = System.currentTimeMillis();
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
@@ -204,15 +220,11 @@ public class MyGame extends VariableFrameRateGame
             im.associateAction(gpName, 
             net.java.games.input.Component.Identifier.Axis.Y, fwdAction, 
             InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-            
         }
 
         im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.W, fwdAction,
 		InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		
-		
-	
 	}
 
 	@Override
