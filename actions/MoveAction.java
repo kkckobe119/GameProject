@@ -26,8 +26,13 @@ public class MoveAction extends AbstractInputAction
 
 	@Override
 	public void performAction(float time, Event e){
+		float keyValue = e.getValue();
+		av = game.getAvatar();
+		if (keyValue > -.2 && keyValue < .2){
+			return;  // deadzone
+		}
 		if(e.getComponent().toString().equals("W") || e.getValue() < -0.2){
-				av = game.getAvatar();
+			
 				oldPosition = av.getWorldLocation();
 				fwdDirection = new Vector4f(0f,0f,1f,1f);
 				fwdDirection.mul(av.getWorldRotation());
@@ -35,7 +40,6 @@ public class MoveAction extends AbstractInputAction
 				newPosition = oldPosition.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
 				av.setLocalLocation(newPosition);
 		}else if(e.getComponent().toString().equals("S") || e.getValue() > 0.2){
-				av = game.getAvatar();
 				oldPosition = av.getWorldLocation();
 				bwdDirection = new Vector4f(0f,0f,1f,1f);
 				bwdDirection.mul(av.getWorldRotation());
