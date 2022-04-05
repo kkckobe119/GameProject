@@ -5,7 +5,7 @@ import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
 import org.joml.*;
 
-import a2.MyGame;
+import a3.MyGame;
 
 public class RenderLinesAction extends AbstractInputAction
 {

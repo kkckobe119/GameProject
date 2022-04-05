@@ -1,4 +1,6 @@
-package a3;
+package client;
+
+import a3.MyGame;
 
 import java.awt.Color;
 import java.io.IOException;

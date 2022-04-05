@@ -1,5 +1,6 @@
 package actions;
 
+import client.*;
 import tage.*;
 import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
@@ -13,12 +14,14 @@ public class MoveAction extends AbstractInputAction
 	private GameObject av;
 	private Vector3f oldPosition, newPosition;
 	private Vector4f bwdDirection, fwdDirection;
+	private ProtocolClient protClient;
 
 	private Camera c;
 	private Vector3f upVector, rightVector, fwdVector;
 
-	public MoveAction(MyGame g){
+	public MoveAction(MyGame g, ProtocolClient p){
 		game = g;
+		protClient = p;
 	}
 
 	@Override
@@ -40,6 +43,7 @@ public class MoveAction extends AbstractInputAction
 				newPosition = oldPosition.add(bwdDirection.x(), bwdDirection.y(), bwdDirection.z());
 				av.setLocalLocation(newPosition);
 		}
+		protClient.sendMoveMessage(av.getWorldLocation());
 	}
 }
 

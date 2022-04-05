@@ -1,6 +1,6 @@
 package actions;
 
-import a2.MyGame;
+import a3.MyGame;
 
 import tage.*;
 import tage.input.action.AbstractInputAction;
