@@ -1,7 +1,7 @@
-package a3;
+package client;
 
 import java.util.UUID;
-
+import a3.MyGame;
 import tage.*;
 import org.joml.*;
 

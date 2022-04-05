@@ -1,5 +1,6 @@
-package a3;
+package client;
 
+import a3.MyGame;
 import java.awt.Color;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -17,9 +18,9 @@ public class ProtocolClient extends GameConnectionClient
 	private GhostManager ghostManager;
 	private UUID id;
 	
-	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame game) throws IOException 
+	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame g) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
-		this.game = game;
+		game = g;
 		this.id = UUID.randomUUID();
 		ghostManager = game.getGhostManager();
 	}
