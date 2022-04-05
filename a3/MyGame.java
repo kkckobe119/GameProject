@@ -49,7 +49,7 @@ public class MyGame extends VariableFrameRateGame
 	private int fluffyClouds, lakeIslands; // skyboxes
 	private CameraOrbitController orbitController;
 
-	private String serverAddress;
+	private String serverAddress, gpName;
 	private int serverPort;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
@@ -162,25 +162,57 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getSceneGraph()).addLight(lightP);
 
 		// ----------------- INPUTS SECTION -----------------------------
-		im = engine.getInputManager();
+	
+		
+		/*im = engine.getInputManager();
 		String gpName = im.getFirstGamepadName();
 
 		// build some action objects for doing things in response to user input
 		FwdAction fwdAction = new FwdAction(this);
-		TurnAction turnAction = new TurnAction(this);
+		TurnAction turnAction = new TurnAction(this);*/
 
+		
 		// attach the action objects to keyboard and gamepad components
-		im.associateAction(gpName,
-			net.java.games.input.Component.Identifier.Button._1,
-			fwdAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		im.associateAction(gpName,
-			net.java.games.input.Component.Identifier.Axis.X,
-			turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		im = engine.getInputManager(); 
 
 		// ----------------- initialize camera ----------------
 		Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
-		orbitController = new CameraOrbitController(c, dolphin, gpName, engine);
+		if(gpName != null){
+			orbitController = new CameraOrbitController(c, dolphin, gpName, engine);
+		} else {
+			orbitController = new CameraOrbitController(c, dolphin, im.getKeyboardName(), engine);
+		}
+		
 		setupNetworking();
+		buildActions();
+	}
+
+	public void buildActions(){
+        //build actions
+		//String gpName = "unloaded";
+        //im = engine.getInputManager(); 
+        if(im.getFirstGamepadName() != null)
+            gpName = im.getFirstGamepadName();
+        FwdAction fwdAction = new FwdAction(this, protClient);
+        TurnAction ywAction = new TurnAction(this);
+    
+        //assign actions to controller
+        if(gpName != null){
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Axis.X, ywAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Axis.Y, fwdAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
+            
+        }
+
+        im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.W, fwdAction,
+		InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		
+		
+	
 	}
 
 	@Override
@@ -223,6 +255,7 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController.updateCameraPosition();
 		processNetworking((float)elapsedTime);
+		
 	}
 
 
@@ -232,6 +265,7 @@ public class MyGame extends VariableFrameRateGame
 	public TextureImage getGhostTexture() { return ghostT; }
 	public GhostManager getGhostManager() { return gm; }
 	public Engine getEngine() { return engine; }
+	public ProtocolClient getProtClient() {return protClient; }
 	
 	private void setupNetworking()
 	{	isClientConnected = false;	
