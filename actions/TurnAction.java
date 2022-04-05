@@ -35,7 +35,7 @@ public class TurnAction extends AbstractInputAction
 				rotAroundAvatarUp = new Matrix4f().rotation(0.02f, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
 				newRotation = oldRotation;
 				newRotation.mul(rotAroundAvatarUp);
-				av.setLocalRotation(newRotation);	
+				av.setLocalRotation(newRotation);
 		}else if(e.getComponent().toString().equals("D") || e.getValue() > 0.2){
 				av = game.getAvatar();
 				oldRotation = new Matrix4f(av.getWorldRotation());

@@ -210,7 +210,6 @@ public class MyGame extends VariableFrameRateGame
 		orbitController = new CameraOrbit3D(c, dolphin, kbName, engine);
 		
 		setupNetworking();
-		//buildActions();
 
 		MoveAction moveAction = new MoveAction(this, protClient);
 		TurnAction turnAction = new TurnAction(this);
@@ -258,63 +257,24 @@ public class MyGame extends VariableFrameRateGame
 				renderLinesAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 				
 			}else if(con.getType() == Controller.Type.GAMEPAD || con.getType() == Controller.Type.STICK){
+				// Dolphin Movement Controls 
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.Y,
 				moveAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				// im.associateAction(con, net.java.games.input.Component.Identifier.Axis.X, 
+				// turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 
+
+				// im.associateAction(gpName, net.java.games.input.Component.Identifier.Button._0, 
+				// zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				// im.associateAction(gpName, net.java.games.input.Component.Identifier.Button._3, 
+				// zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
+				// im.associateAction(gpName, net.java.games.input.Component.Identifier.Button._1, 
+				// panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				// im.associateAction(gpName, net.java.games.input.Component.Identifier.Button._2, 
+				// panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
 			}
 		}
-	}
-
-	public void buildActions(){
-		// MoveAction moveAction = new MoveAction(this);
-		// TurnAction turnAction = new TurnAction(this);
-
-		// PanCameraAction panCameraAction = new PanCameraAction(this);
-		// ZoomCameraAction zoomCameraAction = new ZoomCameraAction(this);
-
-		// RenderLinesAction renderLinesAction = new RenderLinesAction(this);
-
-		// ArrayList<Controller> controllers = im.getControllers();
-
-		// for (Controller con : controllers){
-		// 	if (con.getType() == Controller.Type.KEYBOARD){
-		// 		//Dolphin Movement Controls
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.W,
-		// 		moveAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.S,
-		// 		moveAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.A,
-		// 		turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.D,
-		// 		turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-		// 		//Camera Movement Controls UP/DOWN
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.T,
-		// 		panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.G,
-		// 		panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-		// 		//Camera Movement Controls LEFT/RIGHT
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.F,
-		// 		panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.H,
-		// 		panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-		// 		//Camera Zoom Controls
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.C,
-		// 		zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.V,
-		// 		zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-		// 		//Toggle Lines
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Key.E,
-		// 		renderLinesAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
-				
-		// 	}else if(con.getType() == Controller.Type.GAMEPAD || con.getType() == Controller.Type.STICK){
-		// 		im.associateAction(con, net.java.games.input.Component.Identifier.Axis.Y,
-		// 		moveAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		// 	}
-		// }
 	}
 
 	public void toggleAxis(){
@@ -389,6 +349,16 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController.updateCameraPosition();
 		processNetworking((float)elapsedTime);
+
+		// c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
+		// Vector3f loc = dolphin.getWorldLocation();
+		// Vector3f fwd = dolphin.getWorldForwardVector();
+		// Vector3f up = dolphin.getWorldUpVector();
+		// Vector3f right = dolphin.getWorldRightVector();
+		// c.setU(right);
+		// c.setV(up);
+		// c.setN(fwd);
+		// c.setLocation(loc.add(up.mul(1f)).add(fwd.mul(-2f)));
 		
 	}
 

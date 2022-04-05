@@ -22,7 +22,9 @@ public class ZoomCameraAction extends AbstractInputAction
 
 	@Override
 	public void performAction(float time, Event e){
-		if(e.getComponent().toString().equals("C")){ // Zoom In
+		if (e.getValue() > -.2 && e.getValue() < .2){
+			return;  // deadzone
+		}else if(e.getComponent().toString().equals("C")){ // Zoom In
 			c = (game.getEngine().getRenderSystem()).getViewport("RIGHT").getCamera();
 			fwdVector = c.getN();
 			oldPosition = c.getLocation();
