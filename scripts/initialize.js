@@ -1,5 +1,5 @@
 var avatarX = -2.0;
-var avatarY = 0.0;
+var avatarY = 1.5;
 var avatarZ = -2.0;
 var avatarRot = 180.0;
 
