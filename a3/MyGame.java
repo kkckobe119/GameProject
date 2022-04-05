@@ -1,5 +1,6 @@
 package a3;
 
+import actions.*;
 import tage.*;
 import tage.shapes.*;
 import tage.input.*;
