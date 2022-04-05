@@ -17,7 +17,6 @@ import org.joml.*;
 import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 
-import java.util.UUID;
 import java.net.InetAddress;
 
 import java.net.UnknownHostException;
@@ -25,12 +24,14 @@ import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 import tage.networking.IGameConnection.ProtocolType;
 
-// test commit
-// test 2
-// test 3
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
-//Kobe's
-// test
+import java.util.*;
+import java.util.List;
+
 public class MyGame extends VariableFrameRateGame
 {
 	private static Engine engine;
@@ -48,11 +49,12 @@ public class MyGame extends VariableFrameRateGame
 	private int fluffyClouds, lakeIslands; // skyboxes
 	private CameraOrbitController orbitController;
 
-	private String serverAddress;
+	private String serverAddress, gpName;
 	private int serverPort;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
 	private boolean isClientConnected = false;
+	private double test;
 
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
@@ -66,11 +68,48 @@ public class MyGame extends VariableFrameRateGame
 			this.serverProtocol = ProtocolType.UDP;
 	}
 
-	public static void main(String[] args)
-	{	MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+	public static void main(String[] args){
+		MyGame game = new MyGame(args[0], Integer.parseInt(args[1]), args[2]);
+
+		ScriptEngineManager factory = new ScriptEngineManager();
+		String scriptFileName = "scripts/test.js";
+
+		// get a list of the script engines on this platform
+		List<ScriptEngineFactory> list = factory.getEngineFactories();
+	
+		System.out.println("Script Engine Factories found:");
+		for (ScriptEngineFactory f : list)
+		{ System.out.println("  Name = " + f.getEngineName()
+						   + "  language = " + f.getLanguageName()
+						   + "  extensions = " + f.getExtensions());
+		}
+	
+		// get the JavaScript engine
+		ScriptEngine jsEngine = factory.getEngineByName("js");
+		// run the script
+		game.executeScript(jsEngine, scriptFileName);
+		System.out.println("1---------------------------------");
 		engine = new Engine(game);
 		game.initializeSystem();
 		game.game_loop();
+	}
+
+	private void executeScript(ScriptEngine engine, String scriptFileName)
+	{
+	  try
+	  { FileReader fileReader = new FileReader(scriptFileName);
+		engine.eval(fileReader);         //execute all the script statements in the file
+		test = (Double)engine.get("test");
+		fileReader.close();
+	  }
+	  catch (FileNotFoundException e1)
+	  { System.out.println(scriptFileName + " not found " + e1); }
+	  catch (IOException e2)
+	  { System.out.println("IO problem with " + scriptFileName + e2); }
+	  catch (ScriptException e3) 
+	  { System.out.println("ScriptException in " + scriptFileName + e3); }
+	  catch (NullPointerException e4)
+	  { System.out.println ("Null ptr exception reading " + scriptFileName + e4); }
 	}
 
 	@Override
@@ -109,8 +148,9 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	@Override
-	public void initializeGame()
-	{	prevTime = System.currentTimeMillis();
+	public void initializeGame(){
+		System.out.println(test);
+		prevTime = System.currentTimeMillis();
 		startTime = System.currentTimeMillis();
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
 
@@ -122,25 +162,57 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getSceneGraph()).addLight(lightP);
 
 		// ----------------- INPUTS SECTION -----------------------------
-		im = engine.getInputManager();
+	
+		
+		/*im = engine.getInputManager();
 		String gpName = im.getFirstGamepadName();
 
 		// build some action objects for doing things in response to user input
 		FwdAction fwdAction = new FwdAction(this);
-		TurnAction turnAction = new TurnAction(this);
+		TurnAction turnAction = new TurnAction(this);*/
 
+		
 		// attach the action objects to keyboard and gamepad components
-		im.associateAction(gpName,
-			net.java.games.input.Component.Identifier.Button._1,
-			fwdAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		im.associateAction(gpName,
-			net.java.games.input.Component.Identifier.Axis.X,
-			turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		im = engine.getInputManager(); 
 
 		// ----------------- initialize camera ----------------
 		Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
-		orbitController = new CameraOrbitController(c, dolphin, gpName, engine);
+		if(gpName != null){
+			orbitController = new CameraOrbitController(c, dolphin, gpName, engine);
+		} else {
+			orbitController = new CameraOrbitController(c, dolphin, im.getKeyboardName(), engine);
+		}
+		
 		setupNetworking();
+		buildActions();
+	}
+
+	public void buildActions(){
+        //build actions
+		//String gpName = "unloaded";
+        //im = engine.getInputManager(); 
+        if(im.getFirstGamepadName() != null)
+            gpName = im.getFirstGamepadName();
+        FwdAction fwdAction = new FwdAction(this, protClient);
+        TurnAction ywAction = new TurnAction(this);
+    
+        //assign actions to controller
+        if(gpName != null){
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Axis.X, ywAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Axis.Y, fwdAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
+            
+        }
+
+        im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.W, fwdAction,
+		InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		
+		
+	
 	}
 
 	@Override
@@ -183,6 +255,7 @@ public class MyGame extends VariableFrameRateGame
 
 		orbitController.updateCameraPosition();
 		processNetworking((float)elapsedTime);
+		
 	}
 
 
@@ -192,6 +265,7 @@ public class MyGame extends VariableFrameRateGame
 	public TextureImage getGhostTexture() { return ghostT; }
 	public GhostManager getGhostManager() { return gm; }
 	public Engine getEngine() { return engine; }
+	public ProtocolClient getProtClient() {return protClient; }
 	
 	private void setupNetworking()
 	{	isClientConnected = false;	
