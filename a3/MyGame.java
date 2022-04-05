@@ -42,8 +42,8 @@ public class MyGame extends VariableFrameRateGame
 	private Vector3f currentPosition;
 	private double startTime, prevTime, elapsedTime, amt;
 
-	private GameObject dolphin, terr, avatar;
-	private ObjShape ghostS, dolS, terrS;
+	private GameObject ZAxis, XAxis, YAxis, dolphin, terr, avatar;
+	private ObjShape ghostS, dolS, terrS, line1, line2, line3;
 	private TextureImage ghostT, doltx, hills, grass;
 	private Light lightP;
 	private int fluffyClouds, lakeIslands; // skyboxes
@@ -53,7 +53,7 @@ public class MyGame extends VariableFrameRateGame
 	private int serverPort;
 	private ProtocolType serverProtocol;
 	private ProtocolClient protClient;
-	private boolean isClientConnected = false;
+	private boolean isClientConnected = false, visible = false;
 	private double test;
 
 
@@ -117,6 +117,9 @@ public class MyGame extends VariableFrameRateGame
 	{	dolS = new ImportedModel("dolphinHighPoly.obj");
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("dolphinHighPoly.obj");
+		line1 = new Line(new Vector3f(-999999.0f, 0.0f, 0.0f) , new Vector3f(999999.0f, 0.0f, 0.0f));
+        line2 = new Line(new Vector3f(0.0f, -999999.0f, 0.0f) , new Vector3f(0.0f, 999999.0f, 0.0f));
+        line3 = new Line(new Vector3f(0.0f, 0.0f, -999999.0f) , new Vector3f(0.0f, 0.0f, 999999.0f));
 	}
 
 	@Override
@@ -194,8 +197,12 @@ public class MyGame extends VariableFrameRateGame
         if(im.getFirstGamepadName() != null)
             gpName = im.getFirstGamepadName();
         FwdAction fwdAction = new FwdAction(this, protClient);
-        TurnAction ywAction = new TurnAction(this);
-    
+		yawAction ywAction = new yawAction(this);
+        miniAction zoomInAction = new miniAction(this, 0, 0.1f, 0);
+        miniAction zoomOutAction = new miniAction(this, 1, 0.1f, 0);
+        miniAction panInAction = new miniAction(this, 0, 0, 0.1f);
+        miniAction panOutAction = new miniAction(this, 1, 0, 0.1f);
+        Axis toggle = new Axis(this);
         //assign actions to controller
         if(gpName != null){
             im.associateAction(gpName, 
@@ -204,16 +211,72 @@ public class MyGame extends VariableFrameRateGame
             im.associateAction(gpName, 
             net.java.games.input.Component.Identifier.Axis.Y, fwdAction, 
             InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Button._0, zoomInAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Button._3, zoomOutAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Button._1, panInAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Button._2, panOutAction, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+            im.associateAction(gpName, 
+            net.java.games.input.Component.Identifier.Button._7, toggle, 
+            InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
             
         }
 
-        im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.W, fwdAction,
+        im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.E, zoomInAction,
 		InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		
+		im.associateAction(im.getKeyboardName(),net.java.games.input.Component.Identifier.Key.R, zoomOutAction,
+			InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 		
+		im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.T, panInAction,
+			InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+            im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.Y, panOutAction,
+		InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		
+		im.associateAction(im.getKeyboardName(), net.java.games.input.Component.Identifier.Key.U, toggle,
+			InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 	
 	}
+
+	public void toggleAxis(){
+        if(visible == false){
+            XAxis = new GameObject(GameObject.root(),line1);
+            YAxis = new GameObject(GameObject.root(), line2);
+            ZAxis = new GameObject(GameObject.root(), line3);
+            (XAxis.getRenderStates()).setColor(new Vector3f(1f,0f,0f)); 
+            (YAxis.getRenderStates()).setColor(new Vector3f(0f,1f,0f)); 
+            (ZAxis.getRenderStates()).setColor(new Vector3f(0f,0f,1f));
+            visible = true;
+        } else {
+            GameObject.root().removeChild(XAxis);
+            GameObject.root().removeChild(YAxis);
+            GameObject.root().removeChild(ZAxis); 
+            visible = false; 
+        } 
+    }
+
+	public void move(float speed, float con, String d, Vector3f fwd){
+		switch(d){
+			case "forward":
+			dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(con*speed)));
+			break;
+			case "backward":
+			dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(-con*speed)));
+			break;
+		}
+	}
+
+	public void yaw(float speed, float con){
+		dolphin.setLocalRotation(dolphin.getLocalRotation().rotateY((float) Math.toRadians(con*speed)));
+   }
 
 	@Override
 	public void loadSkyBoxes()
@@ -258,6 +321,10 @@ public class MyGame extends VariableFrameRateGame
 		
 	}
 
+	public double getElapsedTime() {
+		return elapsedTime;
+	}
+
 
 	// ---------- NETWORKING SECTION ----------------
 
@@ -267,8 +334,8 @@ public class MyGame extends VariableFrameRateGame
 	public Engine getEngine() { return engine; }
 	public ProtocolClient getProtClient() {return protClient; }
 	
-	private void setupNetworking()
-	{	isClientConnected = false;	
+	private void setupNetworking() {
+		isClientConnected = false;	
 		try 
 		{	protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
 		} 	catch (UnknownHostException e) 

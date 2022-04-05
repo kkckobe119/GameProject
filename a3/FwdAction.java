@@ -12,24 +12,33 @@ public class FwdAction extends AbstractInputAction
 	private Vector3f oldPosition, newPosition;
 	private Vector4f fwdDirection;
 	private ProtocolClient protClient;
+	private int count = 0;
+    private float speed;
 
 	public FwdAction(MyGame g, ProtocolClient p)
 	{	game = g;
 		protClient = p;
 	}
 
-	@Override
-	public void performAction(float time, Event e)
-	{	av = game.getAvatar();
-		oldPosition = av.getWorldLocation();
-		fwdDirection = new Vector4f(0f,0f,1f,1f);
-		fwdDirection.mul(av.getWorldRotation());
-		fwdDirection.mul(0.01f);
-		newPosition = oldPosition.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
-		av.setLocalLocation(newPosition);
+
+	public void performAction(float time, Event e) 
+    {   
+		av = game.getAvatar();
+        float keyValue = e.getValue();
+        if (keyValue > -.2 && keyValue < .2) return;  // deadzone
+        Vector3f fwd = (game.getEngine().getRenderSystem().getViewport("MAIN").getCamera()).getN();
+        if(count == 0){
+            speed = (float) game.getElapsedTime() * 0.009f;
+            count++;
+        }
+        if(e.getValue() > 0){
+               game.move(speed, 0.10f, "backward", fwd);
+        }else{
+               game.move(speed, 0.10f, "forward", fwd);
+        }
 		protClient.sendMoveMessage(av.getWorldLocation());
 
-	}
+    }
 }
 
 
