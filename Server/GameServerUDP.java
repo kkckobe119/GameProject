@@ -1,5 +1,3 @@
-package Server;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.UUID;
