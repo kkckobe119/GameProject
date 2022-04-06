@@ -38,6 +38,8 @@ public class CameraOrbit3D
 		cameraAzimuth = 0.0f;		// start from BEHIND and ABOVE the target
 		cameraElevation = 20.0f;	// elevation is in degrees
 		cameraRadius = 2.0f;		// distance from camera to avatar
+		if(gpName != null)
+			setupInputs(gpName);
 		setupInputs(gpName);
 		updateCameraPosition();
 	}
@@ -50,15 +52,19 @@ public class CameraOrbit3D
 		OrbitRadiusAction radAction = new OrbitRadiusAction();
 		OrbitElevationAction eleAction = new OrbitElevationAction();
 
+		OrbitAzimuthActionC azmActionC = new OrbitAzimuthActionC();
+		OrbitRadiusActionC radActionC = new OrbitRadiusActionC();
+		OrbitElevationActionC elActionC = new OrbitElevationActionC();
+
 		InputManager im = engine.getInputManager();
 
         ArrayList<Controller> controllers = im.getControllers();
 
 		for (Controller con : controllers){
 			if (con.getType() == Controller.Type.KEYBOARD){
-                im.associateAction(con, net.java.games.input.Component.Identifier.Key.LEFT,
+                im.associateAction(con, net.java.games.input.Component.Identifier.Key.A,
                 azmAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.RIGHT,
+				im.associateAction(con, net.java.games.input.Component.Identifier.Key.D,
                 azmAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.Z,
                 radAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -68,6 +74,15 @@ public class CameraOrbit3D
                 eleAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 				im.associateAction(con, net.java.games.input.Component.Identifier.Key.DOWN,
                 eleAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+			} else if(con.getType() == Controller.Type.GAMEPAD || con.getType() == Controller.Type.STICK){
+				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RX,
+				azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				System.out.println("hi");
+				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RY,
+				radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.POV,
+				elActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+		
 			}
 		}
 
@@ -93,10 +108,10 @@ public class CameraOrbit3D
 	private class OrbitAzimuthAction extends AbstractInputAction{
 		public void performAction(float time, Event event){
 			float rotAmount;
-			if (event.getComponent().toString().equals("Left")){
+			if (event.getComponent().toString().equals("A")){
 				rotAmount=-0.2f;
 			}else{
-				if (event.getComponent().toString().equals("Right")){
+				if (event.getComponent().toString().equals("D")){
 					rotAmount=0.2f;
 				}else{
 					rotAmount=0.0f;
@@ -150,4 +165,64 @@ public class CameraOrbit3D
 		}
 	}
 
+	private class OrbitAzimuthActionC extends AbstractInputAction
+	{	public void performAction(float time, Event event)
+		{	float rotAmount;
+			if (event.getValue() < -0.2)
+			{	rotAmount=-0.2f;
+			}
+			else
+			{	if (event.getValue() > 0.2)
+				{	rotAmount=0.2f;
+				}
+				else
+				{	rotAmount=0.0f;
+				}
+			}
+			cameraAzimuth += rotAmount;
+			cameraAzimuth = cameraAzimuth % 360;
+			updateCameraPosition();
+		}
+	}
+
+
+  
+	private class OrbitRadiusActionC extends AbstractInputAction {
+		public void performAction(float time, Event event)
+		{	float rotAmount;
+			if (event.getValue() < -0.2) {	
+				rotAmount=-0.2f;
+			}
+			else
+			{	if (event.getValue() > 0.2){
+					rotAmount=0.2f;
+				} else{	
+					rotAmount=0.0f;
+				}
+			}
+			cameraRadius += rotAmount;
+			//cameraAzimuth = cameraAzimuth % 360;
+			updateCameraPosition();
+		}
+	}
+
+	private class OrbitElevationActionC extends AbstractInputAction {
+		public void performAction(float time, Event event)
+		{	float rotAmount;
+			if (event.getValue() < -0.2) {	
+				rotAmount=-0.2f;
+			}
+			else
+			{	if (event.getValue() > 0.2){
+					rotAmount=0.2f;
+				} else{	
+					rotAmount=0.0f;
+				}
+			}
+			cameraElevation += rotAmount;
+			cameraElevation = cameraElevation % 360;
+			updateCameraPosition();
+		}
+
+	}
 }
