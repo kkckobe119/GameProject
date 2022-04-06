@@ -345,12 +345,17 @@ public class MyGame extends VariableFrameRateGame
 		im.update((float)elapsedTime);
 
 		//update altitude of dolphin based on height map
-		Vector3f loc = dolphin.getWorldLocation();
-		float height = terr.getHeight(loc.x(), loc.z());
-		dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		// Vector3f loc = dolphin.getWorldLocation();
+		// float height = terr.getHeight(loc.x(), loc.z());
+		// dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 
 		orbitController.updateCameraPosition();
 		processNetworking((float)elapsedTime);
+
+		//update altitude of dolphin based on height map
+		Vector3f loc = dolphin.getWorldLocation();
+		float height = terr.getHeight(loc.x(), loc.z());
+		dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 
 		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
 		//Vector3f loc = dolphin.getWorldLocation();
