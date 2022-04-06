@@ -91,15 +91,17 @@ public class CameraOrbit3D
 	// relative to the target in spherical coordinates, then converting those spherical 
 	// coords to world Cartesian coordinates and setting the camera position from that.
 
-	public void updateCameraPosition(){
-			float totalAz = cameraAzimuth;
-			double theta = Math.toRadians(totalAz);	// rotation around target
-			double phi = Math.toRadians(cameraElevation);	// altitude angle
-			float x = cameraRadius * (float)(Math.cos(phi) * Math.sin(theta));
-			float y = cameraRadius * (float)(Math.sin(phi));
-			float z = cameraRadius * (float)(Math.cos(phi) * Math.cos(theta));
-			camera.setLocation(new Vector3f(x,y,z).add(avatar.getWorldLocation()));
-			camera.lookAt(avatar);
+	public void updateCameraPosition()
+	{	Vector3f avatarRot = avatar.getWorldForwardVector();
+		double avatarAngle = Math.toDegrees((double)avatarRot.angleSigned(new Vector3f(0,0,-1), new Vector3f(0,1,0)));
+		float totalAz = cameraAzimuth - (float)avatarAngle;
+		double theta = Math.toRadians(totalAz);	// rotation around target
+		double phi = Math.toRadians(cameraElevation);	// altitude angle
+		float x = cameraRadius * (float)(Math.cos(phi) * Math.sin(theta));
+		float y = cameraRadius * (float)(Math.sin(phi));
+		float z = cameraRadius * (float)(Math.cos(phi) * Math.cos(theta));
+		camera.setLocation(new Vector3f(x,y,z).add(avatar.getWorldLocation()));
+		camera.lookAt(avatar);
 	}
 	/**
 	* Moves camera left/right
