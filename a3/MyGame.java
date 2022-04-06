@@ -59,7 +59,7 @@ public class MyGame extends VariableFrameRateGame
 	private boolean isClientConnected = false, visible = false;
 	private double test;
 
-	private double avatarX;
+	private float avatarX;
 	private double avatarY;
 	private double avatarZ;
 	private double avatarRot;
@@ -110,15 +110,17 @@ public class MyGame extends VariableFrameRateGame
 	  try{
 		FileReader fileReader = new FileReader(scriptFileName);
 		engine.eval(fileReader);         //execute all the script statements in the file
-		avatarX = (double)engine.get("avatarX");
+		avatarX = ((Double)(engine.get("avatarX"))).floatValue();
 		avatarY = (double)engine.get("avatarY");
 		avatarZ = (double)engine.get("avatarZ");
 		avatarRot = (double)engine.get("avatarRot");
+
 
 		terrainPos = (double)engine.get("terrainPos");
 		terrainScaleX = (double)engine.get("terrainScaleX");
 		terrainScaleY = (double)engine.get("terrainScaleY");
 		terrainScaleZ = (double)engine.get("terrainScaleZ");
+
 		fileReader.close();
 	  }
 	  catch (FileNotFoundException e1)
@@ -132,8 +134,8 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	@Override
-	public void loadShapes()
-	{	dolS = new ImportedModel("dolphinHighPoly.obj");
+	public void loadShapes(){
+		dolS = new ImportedModel("dolphinHighPoly.obj");
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("dolphinHighPoly.obj");
 		line1 = new Line(new Vector3f(-999999.0f, 0.0f, 0.0f) , new Vector3f(999999.0f, 0.0f, 0.0f));
@@ -212,7 +214,7 @@ public class MyGame extends VariableFrameRateGame
 		setupNetworking();
 
 		MoveAction moveAction = new MoveAction(this, protClient);
-		TurnAction turnAction = new TurnAction(this);
+		TurnAction turnAction = new TurnAction(this, protClient);
 
 		PanCameraAction panCameraAction = new PanCameraAction(this);
 		ZoomCameraAction zoomCameraAction = new ZoomCameraAction(this);
@@ -260,8 +262,8 @@ public class MyGame extends VariableFrameRateGame
 				// Dolphin Movement Controls 
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.Y,
 				moveAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				// im.associateAction(con, net.java.games.input.Component.Identifier.Axis.X, 
-				// turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 
+				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.X, 
+				turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 
 
 				// im.associateAction(gpName, net.java.games.input.Component.Identifier.Button._0, 
 				// zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);

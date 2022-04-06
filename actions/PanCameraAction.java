@@ -22,6 +22,7 @@ public class PanCameraAction extends AbstractInputAction
 
 	@Override
 	public void performAction(float time, Event e){
+		System.out.println(e);
 		if(e.getComponent().toString().equals("T")){ // Move Up
 			c = (game.getEngine().getRenderSystem()).getViewport("RIGHT").getCamera();
 			upVector = c.getV();
