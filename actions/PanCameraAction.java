@@ -24,7 +24,7 @@ public class PanCameraAction extends AbstractInputAction
 	public void performAction(float time, Event e){
 		System.out.println(e);
 		if(e.getComponent().toString().equals("T")){ // Move Up
-			c = (game.getEngine().getRenderSystem()).getViewport("RIGHT").getCamera();
+			c = (game.getEngine().getRenderSystem()).getViewport("MAIN").getCamera();
 			upVector = c.getV();
 			oldPosition = c.getLocation();
 			upVector.mul(0.05f);
@@ -32,7 +32,7 @@ public class PanCameraAction extends AbstractInputAction
 			c.setLocation(newPosition);
 		}
 		else if(e.getComponent().toString().equals("G")){ // Move Down
-			c = (game.getEngine().getRenderSystem()).getViewport("RIGHT").getCamera();
+			c = (game.getEngine().getRenderSystem()).getViewport("MAIN").getCamera();
 			upVector = c.getV();
 			oldPosition = c.getLocation();
 			upVector.mul(-0.05f);
@@ -40,7 +40,7 @@ public class PanCameraAction extends AbstractInputAction
 			c.setLocation(newPosition);
 		}
 		else if(e.getComponent().toString().equals("F")){ // Move Left
-			c = (game.getEngine().getRenderSystem()).getViewport("RIGHT").getCamera();
+			c = (game.getEngine().getRenderSystem()).getViewport("MAIN").getCamera();
 			rightVector = c.getU();
 			oldPosition = c.getLocation();
 			rightVector.mul(-0.05f);
@@ -48,7 +48,7 @@ public class PanCameraAction extends AbstractInputAction
 			c.setLocation(newPosition);
 		}
 		else if(e.getComponent().toString().equals("H")){ // Move Right
-			c = (game.getEngine().getRenderSystem()).getViewport("RIGHT").getCamera();
+			c = (game.getEngine().getRenderSystem()).getViewport("MAIN").getCamera();
 			rightVector = c.getU();
 			oldPosition = c.getLocation();
 			rightVector.mul(0.05f);

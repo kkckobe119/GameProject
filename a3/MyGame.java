@@ -262,7 +262,7 @@ public class MyGame extends VariableFrameRateGame
 				// Dolphin Movement Controls 
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.Y,
 				moveAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.X, 
+				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RX, 
 				turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 
 
 				// im.associateAction(gpName, net.java.games.input.Component.Identifier.Button._0, 
@@ -344,16 +344,16 @@ public class MyGame extends VariableFrameRateGame
 		// update inputs and camera
 		im.update((float)elapsedTime);
 
-		// update altitude of dolphin based on height map
-		// Vector3f loc = dolphin.getWorldLocation();
-		// float height = terr.getHeight(loc.x(), loc.z());
-		// dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		//update altitude of dolphin based on height map
+		Vector3f loc = dolphin.getWorldLocation();
+		float height = terr.getHeight(loc.x(), loc.z());
+		dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 
 		orbitController.updateCameraPosition();
 		processNetworking((float)elapsedTime);
 
-		// c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
-		// Vector3f loc = dolphin.getWorldLocation();
+		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
+		//Vector3f loc = dolphin.getWorldLocation();
 		// Vector3f fwd = dolphin.getWorldForwardVector();
 		// Vector3f up = dolphin.getWorldUpVector();
 		// Vector3f right = dolphin.getWorldRightVector();

@@ -77,7 +77,6 @@ public class CameraOrbit3D
 			} else if(con.getType() == Controller.Type.GAMEPAD || con.getType() == Controller.Type.STICK){
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RX,
 				azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				System.out.println("hi");
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RY,
 				radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.POV,
