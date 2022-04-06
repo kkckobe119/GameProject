@@ -130,7 +130,7 @@ public class ProtocolClient extends GameConnectionClient
 		{	e.printStackTrace();
 	}	}
 	
-	// Informs the server of the client�s Avatar�s position. The server 
+	// Informs the server of the client's Avatar's position. The server 
 	// takes this message and forwards it to all other clients registered 
 	// with the server.
 	// Message Format: (create,localId,x,y,z) where x, y, and z represent the position
@@ -168,15 +168,32 @@ public class ProtocolClient extends GameConnectionClient
 	// Informs the server that the local avatar has changed position.  
 	// Message Format: (move,localId,x,y,z) where x, y, and z represent the position.
 
-	public void sendMoveMessage(Vector3f position)
-	{	try 
-		{	String message = new String("move," + id.toString());
+	public void sendMoveMessage(Vector3f position){
+		try {
+			String message = new String("move," + id.toString());
 			message += "," + position.x();
 			message += "," + position.y();
 			message += "," + position.z();
 			
 			sendPacket(message);
-		} catch (IOException e) 
-		{	e.printStackTrace();
-	}	}
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// Informs the server that the local avatar has changed direction.  
+	// Message Format: (rotate,localId,x,y,z) where x, y, and z represent the position.
+
+	// public void sendMoveMessage(Vector3f position){
+	// 	try {
+	// 		String message = new String("rotate," + id.toString());
+	// 		message += "," + position.x();
+	// 		message += "," + position.y();
+	// 		message += "," + position.z();
+			
+	// 		sendPacket(message);
+	// 	}catch (IOException e) {
+	// 		e.printStackTrace();
+	// 	}
+	// }
 }

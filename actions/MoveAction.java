@@ -26,13 +26,11 @@ public class MoveAction extends AbstractInputAction
 
 	@Override
 	public void performAction(float time, Event e){
-		float keyValue = e.getValue();
-		av = game.getAvatar();
-		if (keyValue > -.2 && keyValue < .2){
+		//System.out.println(e);
+		if (e.getValue() > -.2 && e.getValue() < .2){
 			return;  // deadzone
-		}
-		if(e.getComponent().toString().equals("W") || e.getValue() < -0.2){
-			
+		}else if(e.getComponent().toString().equals("W") || e.getValue() < -0.2){
+				av = game.getAvatar();
 				oldPosition = av.getWorldLocation();
 				fwdDirection = new Vector4f(0f,0f,1f,1f);
 				fwdDirection.mul(av.getWorldRotation());

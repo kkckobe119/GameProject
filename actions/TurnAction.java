@@ -1,6 +1,7 @@
 package actions;
 
 //import a1.MyGame;
+import client.*;
 import tage.*;
 import tage.input.action.AbstractInputAction;
 import net.java.games.input.Event;
@@ -14,13 +15,15 @@ public class TurnAction extends AbstractInputAction
 	private GameObject av;
 	private Vector4f oldUp;
 	private Matrix4f rotAroundAvatarUp, oldRotation, newRotation;
+	private ProtocolClient protClient;
 
 	//private MyGame game;
 	private Camera c;
 	private Vector3f upVector, rightVector, fwdVector;
 
-	public TurnAction(MyGame g)
-	{	game = g;
+	public TurnAction(MyGame g, ProtocolClient p){
+		game = g;
+		protClient = p;
 	}
 
 	@Override
@@ -35,7 +38,7 @@ public class TurnAction extends AbstractInputAction
 				rotAroundAvatarUp = new Matrix4f().rotation(0.02f, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
 				newRotation = oldRotation;
 				newRotation.mul(rotAroundAvatarUp);
-				av.setLocalRotation(newRotation);	
+				av.setLocalRotation(newRotation);
 		}else if(e.getComponent().toString().equals("D") || e.getValue() > 0.2){
 				av = game.getAvatar();
 				oldRotation = new Matrix4f(av.getWorldRotation());
@@ -45,6 +48,7 @@ public class TurnAction extends AbstractInputAction
 				newRotation.mul(rotAroundAvatarUp);
 				av.setLocalRotation(newRotation);
 		}
+		//protClient.sendMoveMessage(av.getLocalRotation());
 	}
 }
 
