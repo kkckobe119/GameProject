@@ -77,7 +77,6 @@ public class CameraOrbit3D
 			} else if(con.getType() == Controller.Type.GAMEPAD || con.getType() == Controller.Type.STICK){
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RX,
 				azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				System.out.println("hi");
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RY,
 				radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.POV,
@@ -92,8 +91,8 @@ public class CameraOrbit3D
 	// relative to the target in spherical coordinates, then converting those spherical 
 	// coords to world Cartesian coordinates and setting the camera position from that.
 
-	public void updateCameraPosition()
-	{	Vector3f avatarRot = avatar.getWorldForwardVector();
+	public void updateCameraPosition(){
+		Vector3f avatarRot = avatar.getWorldForwardVector();
 		double avatarAngle = Math.toDegrees((double)avatarRot.angleSigned(new Vector3f(0,0,-1), new Vector3f(0,1,0)));
 		float totalAz = cameraAzimuth - (float)avatarAngle;
 		double theta = Math.toRadians(totalAz);	// rotation around target

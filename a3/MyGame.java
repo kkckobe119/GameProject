@@ -60,14 +60,14 @@ public class MyGame extends VariableFrameRateGame
 	private double test;
 
 	private float avatarX;
-	private double avatarY;
-	private double avatarZ;
-	private double avatarRot;
+	private float avatarY;
+	private float avatarZ;
+	private float avatarRot;
 
-	private double terrainPos;
-	private double terrainScaleX;
-	private double terrainScaleY;
-	private double terrainScaleZ;
+	private float terrainPos;
+	private float terrainScaleX;
+	private float terrainScaleY;
+	private float terrainScaleZ;
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
 		super();
@@ -111,15 +111,15 @@ public class MyGame extends VariableFrameRateGame
 		FileReader fileReader = new FileReader(scriptFileName);
 		engine.eval(fileReader);         //execute all the script statements in the file
 		avatarX = ((Double)(engine.get("avatarX"))).floatValue();
-		avatarY = (double)engine.get("avatarY");
-		avatarZ = (double)engine.get("avatarZ");
-		avatarRot = (double)engine.get("avatarRot");
+		avatarY = ((Double)(engine.get("avatarY"))).floatValue();
+		avatarZ = ((Double)(engine.get("avatarZ"))).floatValue();
+		avatarRot = ((Double)(engine.get("avatarRot"))).floatValue();
 
 
-		terrainPos = (double)engine.get("terrainPos");
-		terrainScaleX = (double)engine.get("terrainScaleX");
-		terrainScaleY = (double)engine.get("terrainScaleY");
-		terrainScaleZ = (double)engine.get("terrainScaleZ");
+		terrainPos = ((Double)(engine.get("terrainPos"))).floatValue();
+		terrainScaleX = ((Double)(engine.get("terrainScaleX"))).floatValue();
+		terrainScaleY = ((Double)(engine.get("terrainScaleY"))).floatValue();
+		terrainScaleZ = ((Double)(engine.get("terrainScaleZ"))).floatValue();
 
 		fileReader.close();
 	  }
@@ -157,16 +157,16 @@ public class MyGame extends VariableFrameRateGame
 
 		// build dolphin avatar
 		dolphin = new GameObject(GameObject.root(), dolS, doltx);
-		initialTranslation = (new Matrix4f()).translation((float)avatarX, (float)avatarY, (float)avatarZ);
+		initialTranslation = (new Matrix4f()).translation(avatarX, avatarY, avatarZ);
 		dolphin.setLocalTranslation(initialTranslation);
-		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians((float)avatarRot));
+		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(avatarRot));
 		dolphin.setLocalRotation(initialRotation);
 
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
-		initialTranslation = (new Matrix4f()).translation((float)terrainPos,(float)terrainPos,(float)terrainPos);
+		initialTranslation = (new Matrix4f()).translation(terrainPos,terrainPos,terrainPos);
 		terr.setLocalTranslation(initialTranslation);
-		initialScale = (new Matrix4f()).scaling((float)terrainScaleX, (float)terrainScaleY, (float)terrainScaleZ);
+		initialScale = (new Matrix4f()).scaling(terrainScaleX, terrainScaleY, terrainScaleZ);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
 	}
@@ -262,7 +262,7 @@ public class MyGame extends VariableFrameRateGame
 				// Dolphin Movement Controls 
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.Y,
 				moveAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.X, 
+				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RX, 
 				turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN); 
 
 				// im.associateAction(gpName, net.java.games.input.Component.Identifier.Button._0, 
@@ -344,7 +344,7 @@ public class MyGame extends VariableFrameRateGame
 		// update inputs and camera
 		im.update((float)elapsedTime);
 
-		// update altitude of dolphin based on height map
+		//update altitude of dolphin based on height map
 		// Vector3f loc = dolphin.getWorldLocation();
 		// float height = terr.getHeight(loc.x(), loc.z());
 		// dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
@@ -352,8 +352,13 @@ public class MyGame extends VariableFrameRateGame
 		orbitController.updateCameraPosition();
 		processNetworking((float)elapsedTime);
 
-		// c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
-		// Vector3f loc = dolphin.getWorldLocation();
+		//update altitude of dolphin based on height map
+		Vector3f loc = dolphin.getWorldLocation();
+		float height = terr.getHeight(loc.x(), loc.z());
+		dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+
+		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
+		//Vector3f loc = dolphin.getWorldLocation();
 		// Vector3f fwd = dolphin.getWorldForwardVector();
 		// Vector3f up = dolphin.getWorldUpVector();
 		// Vector3f right = dolphin.getWorldRightVector();
