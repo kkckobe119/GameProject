@@ -56,9 +56,9 @@ public class MyGame extends VariableFrameRateGame
 	private double startTime, prevTime, elapsedTime, amt;
 	private boolean running = false;
 
-	private GameObject ZAxis, XAxis, YAxis, dolphin, terr, avatar, honeyPot;
-	private ObjShape ghostS, dolS, terrS, line1, line2, line3, honeyPotS, sphS;
-	private TextureImage ghostT, doltx, hills, grass, honeyPotT;
+	private GameObject ZAxis, XAxis, YAxis, terr, avatar, honeyPot, bees;
+	private ObjShape ghostS, avatarS, terrS, line1, line2, line3, honeyPotS, sphS, beesS;
+	private TextureImage ghostTx, avatarTx, hills, grass, honeyPotT, beesTx;
 	private Light lightP;
 	private int fluffyClouds, lakeIslands; // skyboxes
 	private CameraOrbit3D orbitController;
@@ -84,6 +84,11 @@ public class MyGame extends VariableFrameRateGame
 	private float honeyPotY;
 	private float honeyPotZ;
 	private float honeyPotRot;
+
+	private float beesX;
+	private float beesY;
+	private float beesZ;
+	private float beesRot;
 
 	private float vals[] = new float[16];
 
@@ -138,7 +143,10 @@ public class MyGame extends VariableFrameRateGame
 		honeyPotZ = ((Double)(engine.get("honeyPotZ"))).floatValue();
 		honeyPotRot = ((Double)(engine.get("honeyPotRot"))).floatValue();
 
-
+		// beesX = ((Double)(engine.get("beesX"))).floatValue();
+		// beesY = ((Double)(engine.get("beesY"))).floatValue();
+		// beesZ = ((Double)(engine.get("beesZ"))).floatValue();
+		// beesRot = ((Double)(engine.get("beesRot"))).floatValue();
 
 		terrainPos = ((Double)(engine.get("terrainPos"))).floatValue();
 		terrainScaleX = ((Double)(engine.get("terrainScaleX"))).floatValue();
@@ -159,11 +167,13 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadShapes(){
-		dolS = new ImportedModel("dolphinHighPoly.obj");
+		avatarS = new ImportedModel("bear.obj");
+		
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("dolphinHighPoly.obj");
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
+		beesS = new ImportedModel("dolphinHighPoly.obj");
 		line1 = new Line(new Vector3f(-999999.0f, 0.0f, 0.0f) , new Vector3f(999999.0f, 0.0f, 0.0f));
         line2 = new Line(new Vector3f(0.0f, -999999.0f, 0.0f) , new Vector3f(0.0f, 999999.0f, 0.0f));
         line3 = new Line(new Vector3f(0.0f, 0.0f, -999999.0f) , new Vector3f(0.0f, 0.0f, 999999.0f));
@@ -171,11 +181,12 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void loadTextures()
-	{	doltx = new TextureImage("Dolphin_HighPolyUV.png");
-		ghostT = new TextureImage("redDolphin.jpg");
+	{	avatarTx = new TextureImage("bearUV.png");
+		ghostTx = new TextureImage("redDolphin.jpg");
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
 		honeyPotT = new TextureImage("pot_color.png");
+		beesTx = new TextureImage("Dolphin_HighPolyUV.png");
 	}
 
 	@Override
@@ -183,11 +194,13 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialRotation, initialScale;
 
 		// build dolphin avatar
-		dolphin = new GameObject(GameObject.root(), dolS, doltx);
+		avatar = new GameObject(GameObject.root(), avatarS, avatarTx);
 		initialTranslation = (new Matrix4f()).translation(avatarX, avatarY, avatarZ);
-		dolphin.setLocalTranslation(initialTranslation);
+		avatar.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(avatarRot));
-		dolphin.setLocalRotation(initialRotation);
+		initialScale = (new Matrix4f()).scaling(0.25f, 0.25f, 0.25f);
+		avatar.setLocalScale(initialScale);
+		avatar.setLocalRotation(initialRotation);
 
 		// build honeyPot object
 		honeyPot = new GameObject(GameObject.root(), honeyPotS, honeyPotT);
@@ -195,6 +208,13 @@ public class MyGame extends VariableFrameRateGame
 		honeyPot.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(honeyPotRot));
 		honeyPot.setLocalRotation(initialRotation);
+
+		// // build bees object
+		// bees = new GameObject(GameObject.root(), beesS, beesTx);
+		// initialTranslation = (new Matrix4f()).translation(beesX, beesY, beesZ);
+		// bees.setLocalTranslation(initialTranslation);
+		// initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(beesRot));
+		// bees.setLocalRotation(initialRotation);
 
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
@@ -238,7 +258,7 @@ public class MyGame extends VariableFrameRateGame
 
 		// ----------------- initialize camera ----------------
 		Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
-		orbitController = new CameraOrbit3D(c, dolphin, kbName, engine);
+		orbitController = new CameraOrbit3D(c, avatar, kbName, engine);
 
 		//------------- PHYSICS --------------
 
@@ -304,27 +324,9 @@ public class MyGame extends VariableFrameRateGame
 				im.associateAction(con, net.java.games.input.Component.Identifier.Key.D,
 				turnAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
-				//Camera Movement Controls UP/DOWN
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.T,
-				panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.G,
-				panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-				//Camera Movement Controls LEFT/RIGHT
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.F,
-				panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.H,
-				panCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-				//Camera Zoom Controls
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.C,
-				zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.V,
-				zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-
-				//Toggle Lines
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.Z,
-				renderLinesAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+				// //Toggle Lines
+				// im.associateAction(con, net.java.games.input.Component.Identifier.Key.Z,
+				// renderLinesAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 
 				//Toggle Physics
 				im.associateAction(con, net.java.games.input.Component.Identifier.Key.SPACE,
@@ -381,16 +383,16 @@ public class MyGame extends VariableFrameRateGame
 	// public void move(float speed, float con, String d, Vector3f fwd){
 	// 	switch(d){
 	// 		case "forward":
-	// 		dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(con*speed)));
+	// 		avatar.setLocalLocation(avatar.getLocalLocation().add(avatar.getLocalForwardVector().mul(con*speed)));
 	// 		break;
 	// 		case "backward":
-	// 		dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(-con*speed)));
+	// 		avatar.setLocalLocation(avatar.getLocalLocation().add(avatar.getLocalForwardVector().mul(-con*speed)));
 	// 		break;
 	// 	}
 	// }
 
 	public void yaw(float speed, float con){
-		dolphin.setLocalRotation(dolphin.getLocalRotation().rotateY((float) Math.toRadians(con*speed)));
+		avatar.setLocalRotation(avatar.getLocalRotation().rotateY((float) Math.toRadians(con*speed)));
    }
 
 	@Override
@@ -400,7 +402,7 @@ public class MyGame extends VariableFrameRateGame
 		(engine.getSceneGraph()).setSkyBoxEnabled(true);
 	}
 
-	public GameObject getAvatar() { return dolphin; }
+	public GameObject getAvatar() { return avatar; }
 
 	@Override
 	public void update()
@@ -435,9 +437,10 @@ public class MyGame extends VariableFrameRateGame
 		processNetworking((float)elapsedTime);
 
 		//update altitude of dolphin based on height map
-		Vector3f loc = dolphin.getWorldLocation();
+		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
-		dolphin.setLocalLocation(new Vector3f(loc.x(), height+2, loc.z()));
+		//dolphin.setScale(0.5);
+		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 
 		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
 		//Vector3f loc = dolphin.getWorldLocation();
@@ -522,7 +525,7 @@ public class MyGame extends VariableFrameRateGame
 	// ---------- NETWORKING SECTION ----------------
 
 	public ObjShape getGhostShape() { return ghostS; }
-	public TextureImage getGhostTexture() { return ghostT; }
+	public TextureImage getGhostTexture() { return ghostTx; }
 	public GhostManager getGhostManager() { return gm; }
 	public Engine getEngine() { return engine; }
 	public ProtocolClient getProtClient() {return protClient; }
@@ -554,7 +557,7 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public Vector3f getPlayerPosition() {
-		return dolphin.getWorldLocation();
+		return avatar.getWorldLocation();
 	}
 
 	public void setIsConnected(boolean value) {
