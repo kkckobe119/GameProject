@@ -29,10 +29,10 @@ public class TurnAction extends AbstractInputAction
 	@Override
 	public void performAction(float time, Event e){
 		float keyValue = e.getValue();
+		av = game.getAvatar();
 		if (keyValue > -.2 && keyValue < .2){
 			return;  // deadzone
 		}else if(e.getComponent().toString().equals("A") || e.getValue() < -0.2){
-				av = game.getAvatar();
 				oldRotation = new Matrix4f(av.getWorldRotation());
 				oldUp = new Vector4f(0f,1f,0f,1f).mul(oldRotation);
 				rotAroundAvatarUp = new Matrix4f().rotation(0.02f, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
@@ -40,7 +40,6 @@ public class TurnAction extends AbstractInputAction
 				newRotation.mul(rotAroundAvatarUp);
 				av.setLocalRotation(newRotation);
 		}else if(e.getComponent().toString().equals("D") || e.getValue() > 0.2){
-				av = game.getAvatar();
 				oldRotation = new Matrix4f(av.getWorldRotation());
 				oldUp = new Vector4f(0f,1f,0f,1f).mul(oldRotation);
 				rotAroundAvatarUp = new Matrix4f().rotation(-0.02f, new Vector3f(oldUp.x(), oldUp.y(), oldUp.z()));
