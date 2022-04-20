@@ -63,13 +63,13 @@ public class CameraOrbit3D
 		for (Controller con : controllers){
 			if (con.getType() == Controller.Type.KEYBOARD){
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.A,
-                azmAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+                azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 				im.associateAction(con, net.java.games.input.Component.Identifier.Key.D,
-                azmAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+                azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.Z,
-                radAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+                radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.X,
-                radAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+                radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.UP,
                 eleAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 				im.associateAction(con, net.java.games.input.Component.Identifier.Key.DOWN,

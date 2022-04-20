@@ -45,9 +45,9 @@ public class MyGame extends VariableFrameRateGame
 	private Vector3f currentPosition;
 	private double startTime, prevTime, elapsedTime, amt;
 
-	private GameObject ZAxis, XAxis, YAxis, dolphin, terr, avatar;
-	private ObjShape ghostS, dolS, terrS, line1, line2, line3;
-	private TextureImage ghostT, doltx, hills, grass;
+	private GameObject ZAxis, XAxis, YAxis, dolphin, terr, avatar, honeyPot;
+	private ObjShape ghostS, dolS, terrS, line1, line2, line3, honeyPotS;
+	private TextureImage ghostT, doltx, hills, grass, honeyPotT;
 	private Light lightP;
 	private int fluffyClouds, lakeIslands; // skyboxes
 	private CameraOrbit3D orbitController;
@@ -68,6 +68,11 @@ public class MyGame extends VariableFrameRateGame
 	private float terrainScaleX;
 	private float terrainScaleY;
 	private float terrainScaleZ;
+
+	private float honeyPotX;
+	private float honeyPotY;
+	private float honeyPotZ;
+	private float honeyPotRot;
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
 		super();
@@ -115,6 +120,11 @@ public class MyGame extends VariableFrameRateGame
 		avatarZ = ((Double)(engine.get("avatarZ"))).floatValue();
 		avatarRot = ((Double)(engine.get("avatarRot"))).floatValue();
 
+		honeyPotX = ((Double)(engine.get("honeyPotX"))).floatValue();
+		honeyPotY = ((Double)(engine.get("honeyPotY"))).floatValue();
+		honeyPotZ = ((Double)(engine.get("honeyPotZ"))).floatValue();
+		honeyPotRot = ((Double)(engine.get("honeyPotRot"))).floatValue();
+
 
 		terrainPos = ((Double)(engine.get("terrainPos"))).floatValue();
 		terrainScaleX = ((Double)(engine.get("terrainScaleX"))).floatValue();
@@ -138,6 +148,7 @@ public class MyGame extends VariableFrameRateGame
 		dolS = new ImportedModel("dolphinHighPoly.obj");
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("dolphinHighPoly.obj");
+		honeyPotS = new ImportedModel("honeyPot.obj");
 		line1 = new Line(new Vector3f(-999999.0f, 0.0f, 0.0f) , new Vector3f(999999.0f, 0.0f, 0.0f));
         line2 = new Line(new Vector3f(0.0f, -999999.0f, 0.0f) , new Vector3f(0.0f, 999999.0f, 0.0f));
         line3 = new Line(new Vector3f(0.0f, 0.0f, -999999.0f) , new Vector3f(0.0f, 0.0f, 999999.0f));
@@ -149,6 +160,7 @@ public class MyGame extends VariableFrameRateGame
 		ghostT = new TextureImage("redDolphin.jpg");
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
+		honeyPotT = new TextureImage("pot_color.png");
 	}
 
 	@Override
@@ -161,6 +173,13 @@ public class MyGame extends VariableFrameRateGame
 		dolphin.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(avatarRot));
 		dolphin.setLocalRotation(initialRotation);
+
+		// build honeyPot object
+		honeyPot = new GameObject(GameObject.root(), honeyPotS, honeyPotT);
+		initialTranslation = (new Matrix4f()).translation(honeyPotX, honeyPotY, honeyPotZ);
+		honeyPot.setLocalTranslation(initialTranslation);
+		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(honeyPotRot));
+		honeyPot.setLocalRotation(initialRotation);
 
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
