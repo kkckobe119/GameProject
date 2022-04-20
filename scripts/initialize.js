@@ -1,4 +1,4 @@
-var avatarX = -2.0;
+var avatarX = -1.9;
 var avatarY = 1.5;
 var avatarZ = -2.0;
 var avatarRot = 180.0;
@@ -10,5 +10,5 @@ var terrainScaleZ = 20.0;
 
 var honeyPotX = -2.0;
 var honeyPotY = 1.5;
-var honeyPotZ = -2.0;
+var honeyPotZ = -6.0;
 var honeyPotRot = 180.0;

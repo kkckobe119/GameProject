@@ -26,6 +26,13 @@ import net.java.games.input.*;
 import net.java.games.input.Component.Identifier.*;
 import tage.networking.IGameConnection.ProtocolType;
 
+import tage.physics.PhysicsEngine;
+import tage.physics.PhysicsObject;
+import tage.physics.PhysicsEngineFactory;
+import tage.physics.JBullet.*;
+import com.bulletphysics.dynamics.RigidBody;
+import com.bulletphysics.collision.dispatch.CollisionObject;
+
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
@@ -39,14 +46,18 @@ public class MyGame extends VariableFrameRateGame
 	private static Engine engine;
 	private InputManager im;
 	private GhostManager gm;
-	
+
+	private GameObject ball1, ball2, plane;
+	private PhysicsEngine physicsEngine;
+	private PhysicsObject ball1P, ball2P, planeP, dolP;
 
 	private int counter=0;
 	private Vector3f currentPosition;
 	private double startTime, prevTime, elapsedTime, amt;
+	private boolean running = false;
 
 	private GameObject ZAxis, XAxis, YAxis, dolphin, terr, avatar, honeyPot;
-	private ObjShape ghostS, dolS, terrS, line1, line2, line3, honeyPotS;
+	private ObjShape ghostS, dolS, terrS, line1, line2, line3, honeyPotS, sphS;
 	private TextureImage ghostT, doltx, hills, grass, honeyPotT;
 	private Light lightP;
 	private int fluffyClouds, lakeIslands; // skyboxes
@@ -73,6 +84,8 @@ public class MyGame extends VariableFrameRateGame
 	private float honeyPotY;
 	private float honeyPotZ;
 	private float honeyPotRot;
+
+	private float vals[] = new float[16];
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
 		super();
@@ -126,6 +139,7 @@ public class MyGame extends VariableFrameRateGame
 		honeyPotRot = ((Double)(engine.get("honeyPotRot"))).floatValue();
 
 
+
 		terrainPos = ((Double)(engine.get("terrainPos"))).floatValue();
 		terrainScaleX = ((Double)(engine.get("terrainScaleX"))).floatValue();
 		terrainScaleY = ((Double)(engine.get("terrainScaleY"))).floatValue();
@@ -149,6 +163,7 @@ public class MyGame extends VariableFrameRateGame
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("dolphinHighPoly.obj");
 		honeyPotS = new ImportedModel("honeyPot.obj");
+		sphS = new Sphere();
 		line1 = new Line(new Vector3f(-999999.0f, 0.0f, 0.0f) , new Vector3f(999999.0f, 0.0f, 0.0f));
         line2 = new Line(new Vector3f(0.0f, -999999.0f, 0.0f) , new Vector3f(0.0f, 999999.0f, 0.0f));
         line3 = new Line(new Vector3f(0.0f, 0.0f, -999999.0f) , new Vector3f(0.0f, 0.0f, 999999.0f));
@@ -188,6 +203,17 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(terrainScaleX, terrainScaleY, terrainScaleZ);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
+		terr.getRenderStates().hasLighting(true);
+
+		// -------------- adding a Sphere -----------------
+		ball1 = new GameObject(GameObject.root(), sphS, honeyPotT);
+		ball1.setLocalTranslation((new Matrix4f()).translation(-2.0f, 4.0f, -2.0f));
+		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
+
+		// -------------- adding a second sphere -------------
+		ball2 = new GameObject(GameObject.root(), sphS, honeyPotT);
+		ball2.setLocalTranslation((new Matrix4f()).translation(-0.5f, 8.0f, 10.0f));
+		ball2.setLocalScale((new Matrix4f()).scaling(0.75f));
 	}
 
 	@Override
@@ -210,35 +236,58 @@ public class MyGame extends VariableFrameRateGame
 		String gpName = im.getFirstGamepadName();
 		String kbName = im.getKeyboardName();
 
-		/*im = engine.getInputManager();
-		String gpName = im.getFirstGamepadName();
-
-		// build some action objects for doing things in response to user input
-		FwdAction fwdAction = new FwdAction(this);
-		TurnAction turnAction = new TurnAction(this);*/
-
-		
-		// attach the action objects to keyboard and gamepad components
-		//im = engine.getInputManager(); 
-
 		// ----------------- initialize camera ----------------
 		Camera c = (engine.getRenderSystem()).getViewport("MAIN").getCamera();
-		// if(gpName != null){
-		// 	orbitController = new CameraOrbitController(c, dolphin, gpName, engine);
-		// } else {
-		// 	orbitController = new CameraOrbitController(c, dolphin, im.getKeyboardName(), engine);
-		// }
 		orbitController = new CameraOrbit3D(c, dolphin, kbName, engine);
+
+		//------------- PHYSICS --------------
+
+		//     --- initialize physics system ---
+		String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
+		float[] gravity = {0f, -5f, 0f};
+		physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engine);
+		physicsEngine.initSystem();
+		physicsEngine.setGravity(gravity);
+
+		//     --- create physics world ---
+		float mass = 1.0f;
+		float up[] = {0,1,0};
+		double[] tempTransform;
+
+		Matrix4f translation = new Matrix4f(ball1.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		ball1P = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		ball1P.setBounciness(1.0f);
+		ball1.setPhysicsObject(ball1P);
+		
+		translation = new Matrix4f(ball2.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		ball2P = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		ball2P.setBounciness(1.0f);
+		ball2.setPhysicsObject(ball2P);
+		
+		translation = new Matrix4f(terr.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		planeP = physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), tempTransform, up, 0.0f);
+		planeP.setBounciness(1.0f);
+		terr.setPhysicsObject(planeP);
+
+		translation = new Matrix4f(dolphin.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		dolP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		dolP.setBounciness(1.0f);
+		dolphin.setPhysicsObject(dolP);
+
 		
 		setupNetworking();
 
+	// build some action objects for doing things in response to user input
 		MoveAction moveAction = new MoveAction(this, protClient);
 		TurnAction turnAction = new TurnAction(this, protClient);
-
 		PanCameraAction panCameraAction = new PanCameraAction(this);
 		ZoomCameraAction zoomCameraAction = new ZoomCameraAction(this);
-
 		RenderLinesAction renderLinesAction = new RenderLinesAction(this);
+		TogglePhysicsAction togglePhysicsAction = new TogglePhysicsAction(this);
 
 		ArrayList<Controller> controllers = im.getControllers();
 
@@ -274,8 +323,12 @@ public class MyGame extends VariableFrameRateGame
 				zoomCameraAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 
 				//Toggle Lines
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.E,
+				im.associateAction(con, net.java.games.input.Component.Identifier.Key.Z,
 				renderLinesAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
+
+				//Toggle Physics
+				im.associateAction(con, net.java.games.input.Component.Identifier.Key.SPACE,
+				togglePhysicsAction, InputManager.INPUT_ACTION_TYPE.ON_PRESS_ONLY);
 				
 			}else if(con.getType() == Controller.Type.GAMEPAD || con.getType() == Controller.Type.STICK){
 				// Dolphin Movement Controls 
@@ -315,16 +368,26 @@ public class MyGame extends VariableFrameRateGame
         } 
     }
 
-	public void move(float speed, float con, String d, Vector3f fwd){
-		switch(d){
-			case "forward":
-			dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(con*speed)));
-			break;
-			case "backward":
-			dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(-con*speed)));
-			break;
+	public void togglePhysics(){
+		if(running == false){
+			running = true;
+			System.out.println("on");
+		}else{
+			running = false;
+			System.out.println("off");
 		}
 	}
+
+	// public void move(float speed, float con, String d, Vector3f fwd){
+	// 	switch(d){
+	// 		case "forward":
+	// 		dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(con*speed)));
+	// 		break;
+	// 		case "backward":
+	// 		dolphin.setLocalLocation(dolphin.getLocalLocation().add(dolphin.getLocalForwardVector().mul(-con*speed)));
+	// 		break;
+	// 	}
+	// }
 
 	public void yaw(float speed, float con){
 		dolphin.setLocalRotation(dolphin.getLocalRotation().rotateY((float) Math.toRadians(con*speed)));
@@ -372,9 +435,9 @@ public class MyGame extends VariableFrameRateGame
 		processNetworking((float)elapsedTime);
 
 		//update altitude of dolphin based on height map
-		Vector3f loc = dolphin.getWorldLocation();
-		float height = terr.getHeight(loc.x(), loc.z());
-		dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		// Vector3f loc = dolphin.getWorldLocation();
+		// float height = terr.getHeight(loc.x(), loc.z());
+		// dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
 
 		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
 		//Vector3f loc = dolphin.getWorldLocation();
@@ -385,12 +448,74 @@ public class MyGame extends VariableFrameRateGame
 		// c.setV(up);
 		// c.setN(fwd);
 		// c.setLocation(loc.add(up.mul(1f)).add(fwd.mul(-2f)));
+
+		if (running)
+		{	Matrix4f mat = new Matrix4f();
+			Matrix4f mat2 = new Matrix4f().identity();
+			checkForCollisions();
+			physicsEngine.update((float)elapsedTime);
+			for (GameObject go:engine.getSceneGraph().getGameObjects())
+			{	if (go.getPhysicsObject() != null)
+				{	mat.set(toFloatArray(go.getPhysicsObject().getTransform()));
+					mat2.set(3,0,mat.m30()); mat2.set(3,1,mat.m31()); mat2.set(3,2,mat.m32());
+					go.setLocalTranslation(mat2);
+				}
+			}
+		}
 		
+	}
+
+	private void checkForCollisions()
+	{	com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
+		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
+		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
+		com.bulletphysics.dynamics.RigidBody object1, object2;
+		com.bulletphysics.collision.narrowphase.ManifoldPoint contactPoint;
+
+		dynamicsWorld = ((JBulletPhysicsEngine)physicsEngine).getDynamicsWorld();
+		dispatcher = dynamicsWorld.getDispatcher();
+		int manifoldCount = dispatcher.getNumManifolds();
+		for (int i=0; i<manifoldCount; i++)
+		{	manifold = dispatcher.getManifoldByIndexInternal(i);
+			object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();
+			object2 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
+			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
+			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
+			for (int j = 0; j < manifold.getNumContacts(); j++)
+			{	contactPoint = manifold.getContactPoint(j);
+				if (contactPoint.getDistance() < 0.0f)
+				{	System.out.println("---- hit between " + obj1 + " and " + obj2);
+					break;
+				}
+			}
+		}
 	}
 
 	public double getElapsedTime() {
 		return elapsedTime;
 	}
+
+		// ------------------ UTILITY FUNCTIONS used by physics
+
+		private float[] toFloatArray(double[] arr)
+		{	if (arr == null) return null;
+			int n = arr.length;
+			float[] ret = new float[n];
+			for (int i = 0; i < n; i++)
+			{	ret[i] = (float)arr[i];
+			}
+			return ret;
+		}
+	 
+		private double[] toDoubleArray(float[] arr)
+		{	if (arr == null) return null;
+			int n = arr.length;
+			double[] ret = new double[n];
+			for (int i = 0; i < n; i++)
+			{	ret[i] = (double)arr[i];
+			}
+			return ret;
+		}
 
 
 	// ---------- NETWORKING SECTION ----------------
