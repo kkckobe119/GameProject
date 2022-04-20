@@ -18,7 +18,6 @@ public class TogglePhysicsAction extends AbstractInputAction
 	@Override
 	public void performAction(float time, Event e){
         game.togglePhysics();
-        System.out.println("------------------");
 	}
 }
 

@@ -272,11 +272,11 @@ public class MyGame extends VariableFrameRateGame
 		planeP.setBounciness(1.0f);
 		terr.setPhysicsObject(planeP);
 
-		translation = new Matrix4f(dolphin.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		dolP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
-		dolP.setBounciness(1.0f);
-		dolphin.setPhysicsObject(dolP);
+		// translation = new Matrix4f(dolphin.getLocalTranslation());
+		// tempTransform = toDoubleArray(translation.get(vals));
+		// dolP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		// dolP.setBounciness(1.0f);
+		// dolphin.setPhysicsObject(dolP);
 
 		
 		setupNetworking();
@@ -371,10 +371,10 @@ public class MyGame extends VariableFrameRateGame
 	public void togglePhysics(){
 		if(running == false){
 			running = true;
-			System.out.println("on");
+			System.out.println("--- Physics on ---");
 		}else{
 			running = false;
-			System.out.println("off");
+			System.out.println("--- Physics off ---");
 		}
 	}
 
@@ -435,9 +435,9 @@ public class MyGame extends VariableFrameRateGame
 		processNetworking((float)elapsedTime);
 
 		//update altitude of dolphin based on height map
-		// Vector3f loc = dolphin.getWorldLocation();
-		// float height = terr.getHeight(loc.x(), loc.z());
-		// dolphin.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		Vector3f loc = dolphin.getWorldLocation();
+		float height = terr.getHeight(loc.x(), loc.z());
+		dolphin.setLocalLocation(new Vector3f(loc.x(), height+2, loc.z()));
 
 		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
 		//Vector3f loc = dolphin.getWorldLocation();
@@ -465,8 +465,8 @@ public class MyGame extends VariableFrameRateGame
 		
 	}
 
-	private void checkForCollisions()
-	{	com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
+	private void checkForCollisions(){
+		com.bulletphysics.dynamics.DynamicsWorld dynamicsWorld;
 		com.bulletphysics.collision.broadphase.Dispatcher dispatcher;
 		com.bulletphysics.collision.narrowphase.PersistentManifold manifold;
 		com.bulletphysics.dynamics.RigidBody object1, object2;
@@ -475,16 +475,16 @@ public class MyGame extends VariableFrameRateGame
 		dynamicsWorld = ((JBulletPhysicsEngine)physicsEngine).getDynamicsWorld();
 		dispatcher = dynamicsWorld.getDispatcher();
 		int manifoldCount = dispatcher.getNumManifolds();
-		for (int i=0; i<manifoldCount; i++)
-		{	manifold = dispatcher.getManifoldByIndexInternal(i);
+		for (int i=0; i<manifoldCount; i++){
+			manifold = dispatcher.getManifoldByIndexInternal(i);
 			object1 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody0();
 			object2 = (com.bulletphysics.dynamics.RigidBody)manifold.getBody1();
 			JBulletPhysicsObject obj1 = JBulletPhysicsObject.getJBulletPhysicsObject(object1);
 			JBulletPhysicsObject obj2 = JBulletPhysicsObject.getJBulletPhysicsObject(object2);
-			for (int j = 0; j < manifold.getNumContacts(); j++)
-			{	contactPoint = manifold.getContactPoint(j);
-				if (contactPoint.getDistance() < 0.0f)
-				{	System.out.println("---- hit between " + obj1 + " and " + obj2);
+			for (int j = 0; j < manifold.getNumContacts(); j++){
+				contactPoint = manifold.getContactPoint(j);
+				if (contactPoint.getDistance() < 0.0f){
+					System.out.println("---- hit between " + obj1 + " and " + obj2);
 					break;
 				}
 			}
@@ -495,28 +495,29 @@ public class MyGame extends VariableFrameRateGame
 		return elapsedTime;
 	}
 
-		// ------------------ UTILITY FUNCTIONS used by physics
+	// ------------------ UTILITY FUNCTIONS used by physics
 
-		private float[] toFloatArray(double[] arr)
-		{	if (arr == null) return null;
-			int n = arr.length;
-			float[] ret = new float[n];
-			for (int i = 0; i < n; i++)
-			{	ret[i] = (float)arr[i];
-			}
-			return ret;
+	private float[] toFloatArray(double[] arr)
+	{	if (arr == null) return null;
+		int n = arr.length;
+		float[] ret = new float[n];
+		for (int i = 0; i < n; i++){
+			ret[i] = (float)arr[i];
 		}
-	 
-		private double[] toDoubleArray(float[] arr)
-		{	if (arr == null) return null;
-			int n = arr.length;
-			double[] ret = new double[n];
-			for (int i = 0; i < n; i++)
-			{	ret[i] = (double)arr[i];
-			}
-			return ret;
+		return ret;
+	}
+	
+	private double[] toDoubleArray(float[] arr){
+		if (arr == null){
+			return null;
 		}
-
+		int n = arr.length;
+		double[] ret = new double[n];
+		for (int i = 0; i < n; i++){
+			ret[i] = (double)arr[i];
+		}
+		return ret;
+	}
 
 	// ---------- NETWORKING SECTION ----------------
 
@@ -528,32 +529,37 @@ public class MyGame extends VariableFrameRateGame
 	
 	private void setupNetworking() {
 		isClientConnected = false;	
-		try 
-		{	protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
-		} 	catch (UnknownHostException e) 
-		{	e.printStackTrace();
-		}	catch (IOException e) 
-		{	e.printStackTrace();
+		try{
+			protClient = new ProtocolClient(InetAddress.getByName(serverAddress), serverPort, serverProtocol, this);
+		}catch (UnknownHostException e){
+			e.printStackTrace();
+		}catch (IOException e){
+			e.printStackTrace();
 		}
-		if (protClient == null)
-		{	System.out.println("missing protocol host");
-		}
-		else
-		{	// Send the initial join message with a unique identifier for this client
+
+		if (protClient == null){
+			System.out.println("missing protocol host");
+		}else{
+			// Send the initial join message with a unique identifier for this client
 			System.out.println("sending join message to protocol host");
 			protClient.sendJoinMessage();
 		}
 	}
 	
-	protected void processNetworking(float elapsTime)
-	{	// Process packets received by the client from the server
-		if (protClient != null)
+	protected void processNetworking(float elapsTime){
+		// Process packets received by the client from the server
+		if (protClient != null){
 			protClient.processPackets();
+		}
 	}
 
-	public Vector3f getPlayerPosition() { return dolphin.getWorldLocation(); }
+	public Vector3f getPlayerPosition() {
+		return dolphin.getWorldLocation();
+	}
 
-	public void setIsConnected(boolean value) { this.isClientConnected = value; }
+	public void setIsConnected(boolean value) {
+		this.isClientConnected = value;
+	}
 	
 	private class SendCloseConnectionPacketAction extends AbstractInputAction
 	{	@Override
