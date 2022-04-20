@@ -62,18 +62,21 @@ public class CameraOrbit3D
 
 		for (Controller con : controllers){
 			if (con.getType() == Controller.Type.KEYBOARD){
-                im.associateAction(con, net.java.games.input.Component.Identifier.Key.A,
-                azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-				im.associateAction(con, net.java.games.input.Component.Identifier.Key.D,
-                azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+                // im.associateAction(con, net.java.games.input.Component.Identifier.Key.A,
+                // azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+				// im.associateAction(con, net.java.games.input.Component.Identifier.Key.D,
+                // azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.Z,
-                radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+                radAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.X,
-                radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+                radAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
                 im.associateAction(con, net.java.games.input.Component.Identifier.Key.UP,
                 eleAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 				im.associateAction(con, net.java.games.input.Component.Identifier.Key.DOWN,
                 eleAction, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
+
 			} else if(con.getType() == Controller.Type.GAMEPAD || con.getType() == Controller.Type.STICK){
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.RX,
 				azmActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
@@ -132,9 +135,11 @@ public class CameraOrbit3D
 			float rotAmount;
 			if (event.getComponent().toString().equals("Z")){
 				rotAmount=-0.1f;
+				System.out.println("Z");
 			}else{
 				if (event.getComponent().toString().equals("X")){
 					rotAmount=0.1f;
+					System.out.println("X");
 				}else{
 					rotAmount=0.0f;
 				}

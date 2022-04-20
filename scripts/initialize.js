@@ -4,7 +4,7 @@ var avatarZ = -2.0;
 var avatarRot = 180.0;
 
 var terrainPos = 0.0;
-var terrainScaleX = 20.0;
+var terrainScaleX = 200.0;
 var terrainScaleY = 10.0;
 var terrainScaleZ = 20.0;
 
