@@ -49,7 +49,7 @@ public class MyGame extends VariableFrameRateGame
 
 	private GameObject ball1, ball2, plane;
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject ball1P, ball2P, planeP, dolP;
+	private PhysicsObject ball1P, ball2P, planeP, avatarP;
 
 	private int counter=0;
 	private Vector3f currentPosition;
@@ -128,8 +128,7 @@ public class MyGame extends VariableFrameRateGame
 		game.game_loop();
 	}
 
-	private void executeScript(ScriptEngine engine, String scriptFileName)
-	{
+	private void executeScript(ScriptEngine engine, String scriptFileName){
 	  try{
 		FileReader fileReader = new FileReader(scriptFileName);
 		engine.eval(fileReader);         //execute all the script statements in the file
@@ -223,11 +222,11 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(terrainScaleX, terrainScaleY, terrainScaleZ);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
-		terr.getRenderStates().hasLighting(true);
+		//terr.getRenderStates().hasLighting(true);
 
 		// -------------- adding a Sphere -----------------
 		ball1 = new GameObject(GameObject.root(), sphS, honeyPotT);
-		ball1.setLocalTranslation((new Matrix4f()).translation(-2.0f, 4.0f, -2.0f));
+		ball1.setLocalTranslation((new Matrix4f()).translation(-2.0f, 10.0f, -2.0f));
 		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
 
 		// -------------- adding a second sphere -------------
@@ -264,7 +263,7 @@ public class MyGame extends VariableFrameRateGame
 
 		//     --- initialize physics system ---
 		String engine = "tage.physics.JBullet.JBulletPhysicsEngine";
-		float[] gravity = {0f, -5f, 0f};
+		float[] gravity = {-5f, 0f, 0f};
 		physicsEngine = PhysicsEngineFactory.createPhysicsEngine(engine);
 		physicsEngine.initSystem();
 		physicsEngine.setGravity(gravity);
@@ -292,13 +291,13 @@ public class MyGame extends VariableFrameRateGame
 		planeP.setBounciness(1.0f);
 		terr.setPhysicsObject(planeP);
 
-		// translation = new Matrix4f(dolphin.getLocalTranslation());
-		// tempTransform = toDoubleArray(translation.get(vals));
-		// dolP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
-		// dolP.setBounciness(1.0f);
-		// dolphin.setPhysicsObject(dolP);
+		translation = new Matrix4f(avatar.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		avatarP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		avatarP.setBounciness(0.0f);
 
-		
+		//avatar.setPhysicsObject(avatarP);
+
 		setupNetworking();
 
 	// build some action objects for doing things in response to user input
@@ -380,17 +379,6 @@ public class MyGame extends VariableFrameRateGame
 		}
 	}
 
-	// public void move(float speed, float con, String d, Vector3f fwd){
-	// 	switch(d){
-	// 		case "forward":
-	// 		avatar.setLocalLocation(avatar.getLocalLocation().add(avatar.getLocalForwardVector().mul(con*speed)));
-	// 		break;
-	// 		case "backward":
-	// 		avatar.setLocalLocation(avatar.getLocalLocation().add(avatar.getLocalForwardVector().mul(-con*speed)));
-	// 		break;
-	// 	}
-	// }
-
 	public void yaw(float speed, float con){
 		avatar.setLocalRotation(avatar.getLocalRotation().rotateY((float) Math.toRadians(con*speed)));
    }
@@ -439,8 +427,36 @@ public class MyGame extends VariableFrameRateGame
 		//update altitude of dolphin based on height map
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
-		//dolphin.setScale(0.5);
 		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		avatarP.setTransform(toDoubleArray(new Matrix4f(avatar.getLocalTranslation()).get(vals)));
+
+		loc = ball1.getWorldLocation();
+		height = terr.getHeight(loc.x(), loc.z());
+		ball1.setLocalLocation(new Vector3f(loc.x(), height+1, loc.z()));
+		ball1P.setTransform(toDoubleArray(new Matrix4f(ball1.getLocalTranslation()).get(vals)));
+
+		loc = ball2.getWorldLocation();
+		height = terr.getHeight(loc.x(), loc.z());
+		ball2.setLocalLocation(new Vector3f(loc.x(), height+1, loc.z()));
+		ball2P.setTransform(toDoubleArray(new Matrix4f(ball2.getLocalTranslation()).get(vals)));
+
+
+		loc = ball1.getWorldLocation();
+		// height = terr.getHeight(loc.x(), loc.z());
+		// //height = 5;
+		if (ball1.getWorldLocation().x() < -50f){
+			ball1.setLocalLocation(new Vector3f(50f, loc.y(), loc.z()));
+			ball1P.setTransform(toDoubleArray(new Matrix4f(ball1.getLocalTranslation()).get(vals)));
+		}
+
+		loc = ball2.getWorldLocation();
+		// height = terr.getHeight(loc.x(), loc.z());
+		if (ball2.getWorldLocation().x() < -50f){
+			System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+			ball2.setLocalLocation(new Vector3f(50f, loc.y(), loc.z()));
+			ball2P.setTransform(toDoubleArray(new Matrix4f(ball2.getLocalTranslation()).get(vals)));
+		}
+		//avatar.setPhysicsObject(avatarP);
 
 		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
 		//Vector3f loc = dolphin.getWorldLocation();
@@ -488,6 +504,7 @@ public class MyGame extends VariableFrameRateGame
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0.0f){
 					System.out.println("---- hit between " + obj1 + " and " + obj2);
+					//System.out.println("Avatar UID: " + avatarP.getUID());
 					break;
 				}
 			}
