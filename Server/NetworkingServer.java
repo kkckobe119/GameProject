@@ -29,19 +29,19 @@ public class NetworkingServer
 		//npcCtrl.start(thisUDPServer);
 	}
 
-	public NetworkingServer(int serverPort) 
-	{	npcCtrl = new NPCcontroller();
+	// public NetworkingServer(int serverPort) 
+	// {	npcCtrl = new NPCcontroller();
 
-		// start networking server
-		try
-		{	UDPServer = new GameAIServerUDP(serverPort, npcCtrl); }
-		catch (IOException e) 
-		{	System.out.println("GameAIServerUDP didn't start");
-			e.printStackTrace();
-		}
+	// 	// start networking server
+	// 	try
+	// 	{	UDPServer = new GameAIServerUDP(serverPort, npcCtrl); }
+	// 	catch (IOException e) 
+	// 	{	System.out.println("GameAIServerUDP didn't start");
+	// 		e.printStackTrace();
+	// 	}
 
-		npcCtrl.start(UDPServer);
-	}
+	// 	npcCtrl.start(UDPServer);
+	// }
 
 	public static void main(String[] args) 
 	{	if(args.length > 1)
