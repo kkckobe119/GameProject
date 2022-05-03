@@ -1,2 +1,3 @@
 .vscode/settings.json
 run.bat
+*.class
