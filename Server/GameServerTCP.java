@@ -7,8 +7,11 @@ import tage.networking.server.IClientInfo;
 
 public class GameServerTCP extends GameConnectionServer<UUID> 
 {
-	public GameServerTCP(int localPort) throws IOException 
+	NPCcontroller npcCtrl;
+
+	public GameServerTCP(int localPort, NPCcontroller npc) throws IOException 
 	{		super(localPort, ProtocolType.TCP);
+			npcCtrl = npc;
 	}
 	
 	@Override
@@ -25,6 +28,57 @@ public class GameServerTCP extends GameConnectionServer<UUID>
 				addClient(ci, clientID);
 				sendJoinedMessage(clientID, true);
 			}
+		}
+	}
+
+	public void sendCheckForAvatarNear()
+	{	try 
+		{	String message = new String("isnr");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			message += "," + (npcCtrl.getCriteria());
+			sendPacketToAll(message);
+		} 
+		catch (IOException e) 
+		{	System.out.println("couldnt send isnr message");
+				e.printStackTrace();
+		}
+	}
+
+	// ------------------  NPC SETUP ---------------
+	
+	/**
+	 * Informs all clients of the new positions of every NPC.
+	 * <p>
+	 * Message Format: (mnpc,npcID,x,y,z,state) where x, y, and z represent the position.
+	 */
+	public void sendNPCinfo()
+	{	try 
+		{	String message = new String("mnpc");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			message += "," + (npcCtrl.getNPC()).getSize();
+			sendPacketToAll(message);
+		}
+		catch (IOException e) 
+		{	System.out.println("clients not ready for NPCs yet");
+			e.printStackTrace();
+		}
+	}
+	
+	public void sendNPCstart(UUID clientID)
+	{	try 
+		{	String message = new String("createNPC");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			sendPacket(message,clientID);
+		} 
+		catch (IOException e) 
+		{	System.out.println("this client not ready for NPCs yet");
+			e.printStackTrace();
 		}
 	}
 
@@ -86,7 +140,28 @@ public class GameServerTCP extends GameConnectionServer<UUID>
 				String[] pos = {messageTokens[2], messageTokens[3], messageTokens[4]};
 				sendMoveMessages(clientID, pos);
 			}
+
+			// -------- RECEIVING NPC MESSAGES SECTION --------------------
+
+			// Case where server receives request for NPCs
+			// Received Message Format: (needNPC,id)
+			if(messageTokens[0].compareTo("needNPC") == 0)
+			{	System.out.println("server got a needNPC message");
+				UUID clientID = UUID.fromString(messageTokens[1]);
+				sendNPCstart(clientID);
+			}
+
+			// Case where server receives notice that an av is close to the npc
+			// Received Message Format: (isnear,id)
+			if(messageTokens[0].compareTo("isnear") == 0)
+			{	UUID clientID = UUID.fromString(messageTokens[1]);
+				handleNearTiming(clientID);
+			}
 		}
+	}
+
+	public void handleNearTiming(UUID clientID)
+	{	npcCtrl.setNearFlag(true);
 	}
 
 	/**
@@ -149,9 +224,9 @@ public class GameServerTCP extends GameConnectionServer<UUID>
 	}
 	
 	/**
-	 * Informs a client of the details for a remote client’s avatar. This message is in response 
-	 * to the server receiving a DETAILS_FOR message from a remote client. That remote client’s 
-	 * message’s localId becomes the remoteId for this message, and the remote client’s message’s 
+	 * Informs a client of the details for a remote clientï¿½s avatar. This message is in response 
+	 * to the server receiving a DETAILS_FOR message from a remote client. That remote clientï¿½s 
+	 * messageï¿½s localId becomes the remoteId for this message, and the remote clientï¿½s messageï¿½s 
 	 * remoteId is used to send this message to the proper client. 
 	 * <p>
 	 * Message Format: (dsfr,remoteId,x,y,z) where x, y, and z represent the position.
@@ -170,7 +245,7 @@ public class GameServerTCP extends GameConnectionServer<UUID>
 	}
 	
 	/**
-	 * Informs a local client that a remote client wants the local client’s avatar’s information. 
+	 * Informs a local client that a remote client wants the local clientï¿½s avatarï¿½s information. 
 	 * This message is meant to be sent to all clients connected to the server when a new client 
 	 * joins the server. 
 	 * <p>
@@ -187,7 +262,7 @@ public class GameServerTCP extends GameConnectionServer<UUID>
 	}
 	
 	/**
-	 * Informs a client that a remote client’s avatar has changed position. x, y, and z represent 
+	 * Informs a client that a remote clientï¿½s avatar has changed position. x, y, and z represent 
 	 * the new position of the remote avatar. This message is meant to be forwarded to all clients
 	 * connected to the server when it receives a MOVE message from the remote client.   
 	 * <p>
@@ -196,6 +271,28 @@ public class GameServerTCP extends GameConnectionServer<UUID>
 	public void sendMoveMessages(UUID clientID, String[] position)
 	{	try 
 		{	String message = new String("move," + clientID.toString());
+			message += "," + position[0];
+			message += "," + position[1];
+			message += "," + position[2];
+			forwardPacketToAll(message, clientID);
+		} 
+		catch (IOException e) 
+		{	e.printStackTrace();
+		}
+	}
+
+	// ------------  SENDING NPC MESSAGES -----------------
+
+	/**
+	 * Informs clients of the whereabouts of the NPCs. This message is intended to be sent
+	 * to any client at the time that they connect to the game.
+	 * <p>
+	 * Message Format: (createNPC,id,x,y,z) where x, y, and z represent the position
+	 */
+	public void sendCreateNPCmsg(UUID clientID, String[] position)
+	{	try 
+		{	System.out.println("server telling clients about an NPC");
+			String message = new String("createNPC," + clientID.toString());
 			message += "," + position[0];
 			message += "," + position[1];
 			message += "," + position[2];
