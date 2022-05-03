@@ -3,6 +3,12 @@ package a3;
 import client.*;
 import actions.*;
 import tage.*;
+import tage.audio.AudioManagerFactory;
+import tage.audio.AudioResource;
+import tage.audio.AudioResourceType;
+import tage.audio.IAudioManager;
+import tage.audio.Sound;
+import tage.audio.SoundType;
 import tage.shapes.*;
 import tage.input.*;
 import tage.input.action.*;
@@ -46,6 +52,8 @@ public class MyGame extends VariableFrameRateGame
 	private static Engine engine;
 	private InputManager im;
 	private GhostManager gm;
+	private IAudioManager audioMgr; 
+ 	private Sound beeSound;
 
 	private GameObject ball1, ball2, plane;
 	private PhysicsEngine physicsEngine;
@@ -238,9 +246,12 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void initializeGame(){
 		//System.out.println(avatarX + " " + avatarY + " " + avatarZ);
+
 		prevTime = System.currentTimeMillis();
 		startTime = System.currentTimeMillis();
 		(engine.getRenderSystem()).setWindowDimensions(1900,1000);
+
+		initAudio(); 
 
 		//----------------- adding light -----------------
 		Light.setGlobalAmbient(.5f, .5f, .5f);
@@ -351,6 +362,40 @@ public class MyGame extends VariableFrameRateGame
 			}
 		}
 	}
+
+	public void initAudio() 
+ 	{ 
+		 AudioResource resource1, resource2; 
+  		 audioMgr = AudioManagerFactory.createAudioManager( 
+         "tage.audio.joal.JOALAudioManager"); 
+  		 if (!audioMgr.initialize()) { 
+			   System.out.println("Audio Manager failed to initialize!"); 
+   		 return; 
+  		 } 
+  		resource1 = audioMgr.createAudioResource("assets/sounds/bee.wav", AudioResourceType.AUDIO_SAMPLE); 
+  		//resource2 = audioMgr.createAudioResource( "assets/sounds/ocean.wav", AudioResourceType.AUDIO_SAMPLE); 
+  		beeSound = new Sound(resource1, SoundType.SOUND_EFFECT, 100, true); 
+  		//oceanSound = new Sound(resource2, SoundType.SOUND_EFFECT, 100, true); 
+  		beeSound.initialize(audioMgr); 
+  		//oceanSound.initialize(audioMgr); 
+  		beeSound.setMaxDistance(10.0f); 
+  		beeSound.setMinDistance(0.5f); 
+  		beeSound.setRollOff(5.0f); 
+  		//oceanSound.setMaxDistance(10.0f); 
+  		//oceanSound.setMinDistance(0.5f); 
+  		//oceanSound.setRollOff(5.0f); 
+  		beeSound.setLocation(ball1.getWorldLocation()); 
+  		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
+  		setEarParameters(); 
+  		beeSound.play(); 
+ 	} 
+
+ 	public void setEarParameters() 
+ 	{ 
+		Camera camera = (engine.getRenderSystem()).getViewport("MAIN").getCamera(); 
+  		audioMgr.getEar().setLocation(avatar.getWorldLocation()); 
+  		audioMgr.getEar().setOrientation(camera.getN(), new Vector3f(0.0f, 1.0f, 0.0f)); 
+ 	} 
 
 	public void toggleAxis(){
         if(visible == false){
@@ -481,6 +526,11 @@ public class MyGame extends VariableFrameRateGame
 				}
 			}
 		}
+
+		// update sound 
+		beeSound.setLocation(ball1.getWorldLocation()); 
+		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
+		setEarParameters(); 
 		
 	}
 
