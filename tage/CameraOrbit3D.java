@@ -135,11 +135,11 @@ public class CameraOrbit3D
 			float rotAmount;
 			if (event.getComponent().toString().equals("Z")){
 				rotAmount=-0.1f;
-				System.out.println("Z");
+				//System.out.println("Z");
 			}else{
 				if (event.getComponent().toString().equals("X")){
 					rotAmount=0.1f;
-					System.out.println("X");
+					//System.out.println("X");
 				}else{
 					rotAmount=0.0f;
 				}

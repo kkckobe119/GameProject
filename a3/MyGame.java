@@ -169,7 +169,8 @@ public class MyGame extends VariableFrameRateGame
 		avatarS = new ImportedModel("bear.obj");
 		
 		terrS = new TerrainPlane(1000);
-		ghostS = new ImportedModel("dolphinHighPoly.obj");
+		ghostS = new ImportedModel("bear.obj"); /*new ImportedModel("dolphinHighPoly.obj");*/
+
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
 		beesS = new ImportedModel("dolphinHighPoly.obj");
@@ -181,7 +182,7 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadTextures()
 	{	avatarTx = new TextureImage("bearUV.png");
-		ghostTx = new TextureImage("redDolphin.jpg");
+		ghostTx = new TextureImage("bearUV.png");
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
 		honeyPotT = new TextureImage("pot_color.png");
@@ -452,7 +453,7 @@ public class MyGame extends VariableFrameRateGame
 		loc = ball2.getWorldLocation();
 		// height = terr.getHeight(loc.x(), loc.z());
 		if (ball2.getWorldLocation().x() < -50f){
-			System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+			//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 			ball2.setLocalLocation(new Vector3f(50f, loc.y(), loc.z()));
 			ball2P.setTransform(toDoubleArray(new Matrix4f(ball2.getLocalTranslation()).get(vals)));
 		}
