@@ -65,8 +65,8 @@ public class MyGame extends VariableFrameRateGame
 	private boolean running = false;
 
 	private GameObject ZAxis, XAxis, YAxis, terr, avatar, honeyPot, bees;
-	private ObjShape ghostS, avatarS, terrS, line1, line2, line3, honeyPotS, sphS, beesS;
-	private TextureImage ghostTx, avatarTx, hills, grass, honeyPotT, beesTx;
+	private ObjShape ghostS, avatarS, terrS, line1, line2, line3, honeyPotS, sphS, beesS, npcShape;
+	private TextureImage ghostTx, avatarTx, hills, grass, honeyPotT, beesTx, npcTx;
 	private Light lightP;
 	private int fluffyClouds, lakeIslands; // skyboxes
 	private CameraOrbit3D orbitController;
@@ -177,10 +177,12 @@ public class MyGame extends VariableFrameRateGame
 		avatarS = new ImportedModel("bear.obj");
 		
 		terrS = new TerrainPlane(1000);
-		ghostS = new ImportedModel("dolphinHighPoly.obj");
+		ghostS = new ImportedModel("bear.obj"); /*new ImportedModel("dolphinHighPoly.obj");*/
+
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
 		beesS = new ImportedModel("dolphinHighPoly.obj");
+		npcShape = new Cube();
 		line1 = new Line(new Vector3f(-999999.0f, 0.0f, 0.0f) , new Vector3f(999999.0f, 0.0f, 0.0f));
         line2 = new Line(new Vector3f(0.0f, -999999.0f, 0.0f) , new Vector3f(0.0f, 999999.0f, 0.0f));
         line3 = new Line(new Vector3f(0.0f, 0.0f, -999999.0f) , new Vector3f(0.0f, 0.0f, 999999.0f));
@@ -189,11 +191,12 @@ public class MyGame extends VariableFrameRateGame
 	@Override
 	public void loadTextures()
 	{	avatarTx = new TextureImage("bearUV.png");
-		ghostTx = new TextureImage("redDolphin.jpg");
+		ghostTx = new TextureImage("bearUV.png");
 		hills = new TextureImage("hills.jpg");
 		grass = new TextureImage("grass.jpg");
 		honeyPotT = new TextureImage("pot_color.png");
-		beesTx = new TextureImage("Dolphin_HighPolyUV.png");
+		beesTx = honeyPotT;
+		npcTx = new TextureImage("grass.jpg");
 	}
 
 	@Override
@@ -233,12 +236,12 @@ public class MyGame extends VariableFrameRateGame
 		//terr.getRenderStates().hasLighting(true);
 
 		// -------------- adding a Sphere -----------------
-		ball1 = new GameObject(GameObject.root(), sphS, honeyPotT);
+		ball1 = new GameObject(GameObject.root(), sphS, beesTx);
 		ball1.setLocalTranslation((new Matrix4f()).translation(-2.0f, 10.0f, -2.0f));
 		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
 
 		// -------------- adding a second sphere -------------
-		ball2 = new GameObject(GameObject.root(), sphS, honeyPotT);
+		ball2 = new GameObject(GameObject.root(), sphS, beesTx);
 		ball2.setLocalTranslation((new Matrix4f()).translation(-0.5f, 8.0f, 10.0f));
 		ball2.setLocalScale((new Matrix4f()).scaling(0.75f));
 	}
@@ -497,7 +500,7 @@ public class MyGame extends VariableFrameRateGame
 		loc = ball2.getWorldLocation();
 		// height = terr.getHeight(loc.x(), loc.z());
 		if (ball2.getWorldLocation().x() < -50f){
-			System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+			//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 			ball2.setLocalLocation(new Vector3f(50f, loc.y(), loc.z()));
 			ball2P.setTransform(toDoubleArray(new Matrix4f(ball2.getLocalTranslation()).get(vals)));
 		}
@@ -588,6 +591,11 @@ public class MyGame extends VariableFrameRateGame
 		}
 		return ret;
 	}
+	// ---------- NPC/AI SECTION ----------------
+
+	public ObjShape getNPCshape() { return npcShape; }
+	public TextureImage getNPCtexture() { return npcTx; }
+
 
 	// ---------- NETWORKING SECTION ----------------
 
