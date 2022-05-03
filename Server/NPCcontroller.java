@@ -29,11 +29,16 @@ public class NPCcontroller
 	// }
 
 	public void start(GameServerUDP s)
-	{	thinkStartTime = System.nanoTime();
+	{	
+		System.out.println("test1");
+		thinkStartTime = System.nanoTime();
 		tickStartTime = System.nanoTime();
+		System.out.println("test2");
 		lastThinkUpdateTime = thinkStartTime;
 		lastTickUpdateTime = tickStartTime;
+		System.out.println("test3");
 		server = s;
+		System.out.println("test4");
 		setupNPCs();
 		setupBehaviorTree();
 		npcLoop();

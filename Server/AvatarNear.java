@@ -7,7 +7,6 @@ public class AvatarNear extends BTCondition
 	//GameAIServerUDP server;
 	GameServerUDP server;
 	
-  	//public AvatarNear(GameServerUDP s, NPCcontroller c, NPC n, boolean toNegate)
 	public AvatarNear(GameServerUDP s, NPCcontroller c, NPC n, boolean toNegate)
 	{	super(toNegate);
 		server = s;
@@ -17,6 +16,7 @@ public class AvatarNear extends BTCondition
 
 	protected boolean check()
 	{	server.sendCheckForAvatarNear();
+		System.out.println("check");
 		return npcc.getNearFlag();
 	}
 }
