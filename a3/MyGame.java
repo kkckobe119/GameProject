@@ -66,6 +66,7 @@ public class MyGame extends VariableFrameRateGame
 
 	private GameObject ZAxis, XAxis, YAxis, terr, avatar, honeyPot, bees;
 	private ObjShape ghostS, avatarS, terrS, line1, line2, line3, honeyPotS, sphS, beesS, npcShape;
+	private AnimatedShape bearS;
 	private TextureImage ghostTx, avatarTx, hills, grass, honeyPotT, beesTx, npcTx;
 	private Light lightP;
 	private int fluffyClouds, lakeIslands; // skyboxes
@@ -178,6 +179,9 @@ public class MyGame extends VariableFrameRateGame
 		
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("bear.obj"); /*new ImportedModel("dolphinHighPoly.obj");*/
+		bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
+  		//bearS.loadAnimation("WAVE", "robotWave.rka"); 
+  		bearS.loadAnimation("WALK", "walk.rka"); 
 
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
@@ -204,7 +208,7 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialRotation, initialScale;
 
 		// build dolphin avatar
-		avatar = new GameObject(GameObject.root(), avatarS, avatarTx);
+		avatar = new GameObject(GameObject.root(), bearS, avatarTx);
 		initialTranslation = (new Matrix4f()).translation(avatarX, avatarY, avatarZ);
 		avatar.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(avatarRot));
@@ -475,7 +479,7 @@ public class MyGame extends VariableFrameRateGame
 		//update altitude of dolphin based on height map
 		Vector3f loc = avatar.getWorldLocation();
 		float height = terr.getHeight(loc.x(), loc.z());
-		avatar.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		avatar.setLocalLocation(new Vector3f(loc.x(), height+0.5f, loc.z()));
 		avatarP.setTransform(toDoubleArray(new Matrix4f(avatar.getLocalTranslation()).get(vals)));
 
 		loc = ball1.getWorldLocation();
@@ -534,7 +538,17 @@ public class MyGame extends VariableFrameRateGame
 		beeSound.setLocation(ball1.getWorldLocation()); 
 		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
 		setEarParameters(); 
+		bearS.updateAnimation();
 		
+	}
+
+	public void playWalk(){
+		bearS.stopAnimation(); 
+    	bearS.playAnimation("WALK", 0.5f, AnimatedShape.EndType.LOOP, 0); 
+	}
+
+	public void stopWalk(){
+		bearS.stopAnimation(); 
 	}
 
 	private void checkForCollisions(){
