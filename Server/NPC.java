@@ -30,16 +30,16 @@ public class NPC{
 	public double getSize() { return size; }
 
 	public void updateLocation() 
-	{	
-		if (locationX > -50){
-			locationX-=0.2;
-			System.out.println("locationXi: " + locationX);
+    {    
+        if (locationX > -50){
+            locationX-=0.2;
+            //System.out.println("locationXi: " + locationX);
 
-		}else if (locationX < -50){
-			locationX=0;
-			System.out.println("locationX0: " + locationX);
-		}else{
-			locationX-=0.1;
-		}
-	}
+        }else if (locationX < -50){
+            locationX=0;
+            //System.out.println("locationX0: " + locationX);
+        }else{
+            locationX-=0.1;
+        }
+    }
 }
