@@ -46,6 +46,8 @@ public class MoveAction extends AbstractInputAction
 				newPosition = oldPosition.add(bwdDirection.x(), bwdDirection.y(), bwdDirection.z());
 				av.setLocalLocation(newPosition);
 		}
+		game.stopWalk(); 
+    	game.playWalk(); 
 		protClient.sendMoveMessage(av.getWorldLocation());
 	}
 }
