@@ -2,7 +2,6 @@ package a3;
 
 import client.*;
 import actions.*;
-import server.*;
 import tage.*;
 import tage.audio.AudioManagerFactory;
 import tage.audio.AudioResource;
@@ -182,9 +181,8 @@ public class MyGame extends VariableFrameRateGame
 		
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("bear.obj"); /*new ImportedModel("dolphinHighPoly.obj");*/
-		//bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
-  		////bearS.loadAnimation("WAVE", "robotWave.rka"); 
-  		//bearS.loadAnimation("WALK", "walk.rka"); 
+		bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
+  		bearS.loadAnimation("WALK", "walk.rka"); 
 
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
@@ -528,7 +526,7 @@ public class MyGame extends VariableFrameRateGame
 		// c.setN(fwd);
 		// c.setLocation(loc.add(up.mul(1f)).add(fwd.mul(-2f)));
 
-		if (running)
+		if(running)
 		{	Matrix4f mat = new Matrix4f();
 			Matrix4f mat2 = new Matrix4f().identity();
 			checkForCollisions();
@@ -546,17 +544,17 @@ public class MyGame extends VariableFrameRateGame
 		beeSound.setLocation(ball1.getWorldLocation()); 
 		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
 		setEarParameters(); 
-		//bearS.updateAnimation();
+		bearS.updateAnimation();
 		
 	}
 
 	public void playWalk(){
-		//bearS.stopAnimation(); 
-    	//bearS.playAnimation("WALK", 0.5f, AnimatedShape.EndType.LOOP, 0); 
+		bearS.stopAnimation(); 
+    	bearS.playAnimation("WALK", 0.5f, AnimatedShape.EndType.LOOP, 0); 
 	}
 
 	public void stopWalk(){
-		//bearS.stopAnimation(); 
+		bearS.stopAnimation(); 
 	}
 
 	private void checkForCollisions(){
