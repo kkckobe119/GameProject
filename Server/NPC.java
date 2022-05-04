@@ -15,7 +15,7 @@ public class NPC{
 
 	public void randomizeLocation(int seedX, int seedZ)
 	{	
-		locationX = ((double)seedX)/4.0 - 5.0;
+		//locationX = ((double)seedX)/4.0 - 5.0;
 		locationX = 50;
 		locationY = 1.5;
 		locationZ = -2;

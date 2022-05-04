@@ -159,7 +159,6 @@ public class ProtocolClient extends GameConnectionClient
 					Float.parseFloat(messageTokens[3]));
 				double gSize = Double.parseDouble(messageTokens[4]);
 				updateGhostNPC(ghostPosition, gSize);
-				//updateGhostNPC(MyGame.getBallLocation(), gSize);
 			}
 
 			// Handle isNear NPC message

@@ -99,8 +99,6 @@ public class MyGame extends VariableFrameRateGame
 	private float beesZ;
 	private float beesRot;
 
-	private Vector3f location;
-
 	private float vals[] = new float[16];
 
 	public MyGame(String serverAddress, int serverPort, String protocol) { 
@@ -209,7 +207,7 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialRotation, initialScale;
 
 		// build dolphin avatar
-		avatar = new GameObject(GameObject.root(), avatarS, avatarTx);
+		avatar = new GameObject(GameObject.root(), bearS, avatarTx); //avatar = new GameObject(GameObject.root(), avatarS, avatarTx);
 		initialTranslation = (new Matrix4f()).translation(avatarX, avatarY, avatarZ);
 		avatar.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(avatarRot));
@@ -444,11 +442,6 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public GameObject getAvatar() { return avatar; }
-
-	public Vector3f getBallLocation(){ 
-		location = new Vector3f(ball1.getWorldLocation());
-		return location;
-	}
 
 	@Override
 	public void update()
