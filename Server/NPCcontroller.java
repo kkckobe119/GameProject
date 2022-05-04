@@ -5,43 +5,64 @@ import tage.ai.behaviortrees.*;
 public class NPCcontroller
 {
 	private NPC npc;
-	private NPC npc1;
 	Random rn = new Random();
 	BehaviorTree bt = new BehaviorTree(BTCompositeType.SELECTOR);
 	boolean nearFlag = false;
 	long thinkStartTime, tickStartTime, lastThinkUpdateTime, lastTickUpdateTime;
+	//GameAIServerUDP server;
 	GameServerUDP server;
 	double criteria = 2.0;
 
-	public void updateNPCs(){
-		npc.updateLocation();
-		npc1.updateLocation();
+	public void updateNPCs()
+	{	npc.updateLocation();
 	}
+
+	// public void start(GameAIServerUDP s)
+	// {	thinkStartTime = System.nanoTime();
+	// 	tickStartTime = System.nanoTime();
+	// 	lastThinkUpdateTime = thinkStartTime;
+	// 	lastTickUpdateTime = tickStartTime;
+	// 	server = s;
+	// 	setupNPCs();
+	// 	setupBehaviorTree();
+	// 	npcLoop();
+	// }
 
 	public void start(GameServerUDP s)
 	{	
+		System.out.println("test1");
 		thinkStartTime = System.nanoTime();
 		tickStartTime = System.nanoTime();
+		System.out.println("test2");
 		lastThinkUpdateTime = thinkStartTime;
 		lastTickUpdateTime = tickStartTime;
+		System.out.println("test3");
 		server = s;
+		System.out.println("test4");
 		setupNPCs();
 		setupBehaviorTree();
 		npcLoop();
 	}
 
+	// public void start(GameServerTCP s)
+	// {	thinkStartTime = System.nanoTime();
+	// 	tickStartTime = System.nanoTime();
+	// 	lastThinkUpdateTime = thinkStartTime;
+	// 	lastTickUpdateTime = tickStartTime;
+	// 	server = s;
+	// 	setupNPCs();
+	// 	setupBehaviorTree();
+	// 	npcLoop();
+	// }
+
 	public NPC getNPC() { return npc; }
-	public NPC getNPC1() { return npc1; }
 	public void setNearFlag(boolean b) { nearFlag=b; }
 	public boolean getNearFlag() { return nearFlag; }
 	public double getCriteria() { return criteria; }
 
-	public void setupNPCs() {	
-		npc = new NPC();
+	public void setupNPCs() 
+	{	npc = new NPC();
 		npc.randomizeLocation(rn.nextInt(40),rn.nextInt(40));
-
-		npc1 = new NPC();
-		npc1.randomizeLocation(rn.nextInt(20),rn.nextInt(40));
 	}
 
 	public void npcLoop()
@@ -53,9 +74,6 @@ public class NPCcontroller
 			if (elapsedTickMilliSecs >= 25.0f)
 			{	lastTickUpdateTime = currentTime;
 				npc.updateLocation();
-				npc1.updateLocation();
-				//System.out.println("NPC: " + npc.getX() + " " + npc.getY() + " " + npc.getZ());
-				//System.out.println("NPC1: " + npc1.getX() + " " + npc1.getY() + " " + npc1.getZ());
 				server.sendNPCinfo();
 				System.out.println("tick");
 			}
@@ -70,8 +88,7 @@ public class NPCcontroller
 	}
 
 	public void setupBehaviorTree()
-	{	
-		bt.insertAtRoot(new BTSequence(10));
+	{	bt.insertAtRoot(new BTSequence(10));
 		bt.insertAtRoot(new BTSequence(20));
 		bt.insert(10, new OneSecPassed(this,npc,false));
 		bt.insert(10, new GetSmall(npc));

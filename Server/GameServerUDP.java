@@ -22,13 +22,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			message += "," + (npcCtrl.getNPC()).getZ();
 			message += "," + (npcCtrl.getCriteria());
 			sendPacketToAll(message);
-
-			// message = new String("isnr");
-			// message += "," + (npcCtrl.getNPC1()).getX();
-			// message += "," + (npcCtrl.getNPC1()).getY();
-			// message += "," + (npcCtrl.getNPC1()).getZ();
-			// message += "," + (npcCtrl.getCriteria());
-			// sendPacketToAll(message);
 		} 
 		catch (IOException e) 
 		{	System.out.println("couldnt send isnr message");
@@ -45,20 +38,12 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 	 */
 	public void sendNPCinfo()
 	{	try 
-		{	
-			String message = new String("mnpc");
+		{	String message = new String("mnpc");
 			message += "," + (npcCtrl.getNPC()).getX();
 			message += "," + (npcCtrl.getNPC()).getY();
 			message += "," + (npcCtrl.getNPC()).getZ();
 			message += "," + (npcCtrl.getNPC()).getSize();
 			sendPacketToAll(message);
-
-			// message = new String("mnpc");
-			// message += "," + (npcCtrl.getNPC1()).getX();
-			// message += "," + (npcCtrl.getNPC1()).getY();
-			// message += "," + (npcCtrl.getNPC1()).getZ();
-			// message += "," + (npcCtrl.getNPC1()).getSize();
-			// sendPacketToAll(message);
 		}
 		catch (IOException e) 
 		{	System.out.println("clients not ready for NPCs yet");
@@ -73,12 +58,6 @@ public class GameServerUDP extends GameConnectionServer<UUID>
 			message += "," + (npcCtrl.getNPC()).getY();
 			message += "," + (npcCtrl.getNPC()).getZ();
 			sendPacket(message,clientID);
-
-			// message = new String("createNPC");
-			// message += "," + (npcCtrl.getNPC1()).getX();
-			// message += "," + (npcCtrl.getNPC1()).getY();
-			// message += "," + (npcCtrl.getNPC1()).getZ();
-			// sendPacket(message,clientID);
 		} 
 		catch (IOException e) 
 		{	System.out.println("this client not ready for NPCs yet");
