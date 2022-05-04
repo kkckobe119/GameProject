@@ -17,7 +17,7 @@ public class ProtocolClient extends GameConnectionClient
 	private MyGame game;
 	private GhostManager ghostManager;
 	private UUID id;
-	private GhostNPC ghostNPC;
+	private GhostNPC ghostNPC, ghostNPC1, ghostNPC2;
 	
 	public ProtocolClient(InetAddress remoteAddr, int remotePort, ProtocolType protocolType, MyGame g) throws IOException 
 	{	super(remoteAddr, remotePort, protocolType);
@@ -31,14 +31,26 @@ public class ProtocolClient extends GameConnectionClient
 	// ------------- GHOST NPC SECTION --------------
 
 	private void createGhostNPC(Vector3f position) throws IOException
-	{	if (ghostNPC == null)
+	{	
+		if (ghostNPC == null){
 			ghostNPC = new GhostNPC(0, game.getNPCshape(), game.getNPCtexture(), position);
+			System.out.println("0");
+		}else if(ghostNPC1 == null){
+			ghostNPC1 = new GhostNPC(0, game.getNPCshape(), game.getNPCtexture(), position);
+			System.out.println("1");
+		}else if(ghostNPC2 == null){
+			ghostNPC2 = new GhostNPC(0, game.getNPCshape(), game.getNPCtexture(), position);
+			System.out.println("2");
+		}
+		//ghostNPC1 = new GhostNPC(0, game.getNPCshape(), game.getNPCtexture(), position);
+		//ghostNPC2 = new GhostNPC(0, game.getNPCshape(), game.getNPCtexture(), position);
 	}
 
 	private void updateGhostNPC(Vector3f position, double gsize)
-	{	boolean gs;
-		if (ghostNPC == null)
-		{	try
+	{	
+		boolean gs;
+		if (ghostNPC == null){	
+			try
 			{	createGhostNPC(position);
 			}	catch (IOException e)
 			{	System.out.println("error creating ghost npc at update");
@@ -47,6 +59,35 @@ public class ProtocolClient extends GameConnectionClient
 		ghostNPC.setPosition(position);
 		if (gsize == 1.0) gs=false; else gs=true;
 		ghostNPC.setSize(gs);
+
+		// ---------
+
+		//tempPosition = 
+		
+		if (ghostNPC1 == null){	
+			try
+			{	createGhostNPC(position);
+			}	catch (IOException e)
+			{	System.out.println("error creating ghost npc at update");
+			}
+		}
+		ghostNPC1.setPosition(position);
+		if (gsize == 1.0) gs=false; else gs=true;
+		ghostNPC1.setSize(gs);
+
+		// ---------
+
+		if (ghostNPC2 == null){	
+			try
+			{	createGhostNPC(position);
+			}	catch (IOException e)
+			{	System.out.println("error creating ghost npc at update");
+			}
+		}
+		ghostNPC2.setPosition(position);
+		if (gsize == 1.0) gs=false; else gs=true;
+		ghostNPC2.setSize(gs);
+
 	}
 	
 	@Override
