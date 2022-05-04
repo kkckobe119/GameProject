@@ -180,7 +180,6 @@ public class MyGame extends VariableFrameRateGame
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("bear.obj"); /*new ImportedModel("dolphinHighPoly.obj");*/
 		bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
-  		//bearS.loadAnimation("WAVE", "robotWave.rka"); 
   		bearS.loadAnimation("WALK", "walk.rka"); 
 
 		honeyPotS = new ImportedModel("honeyPot.obj");
@@ -208,7 +207,7 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialRotation, initialScale;
 
 		// build dolphin avatar
-		avatar = new GameObject(GameObject.root(), bearS, avatarTx);
+		avatar = new GameObject(GameObject.root(), bearS, avatarTx); //avatar = new GameObject(GameObject.root(), avatarS, avatarTx);
 		initialTranslation = (new Matrix4f()).translation(avatarX, avatarY, avatarZ);
 		avatar.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(avatarRot));
@@ -520,7 +519,7 @@ public class MyGame extends VariableFrameRateGame
 		// c.setN(fwd);
 		// c.setLocation(loc.add(up.mul(1f)).add(fwd.mul(-2f)));
 
-		if (running)
+		if(running)
 		{	Matrix4f mat = new Matrix4f();
 			Matrix4f mat2 = new Matrix4f().identity();
 			checkForCollisions();

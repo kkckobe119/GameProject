@@ -1,8 +1,8 @@
 import java.util.Random;
 import java.util.UUID;
 
-public class NPC
-{
+public class NPC{
+
 	double locationX, locationY, locationZ;
 	double dir = 0.1;
 	double size = 1.0;
@@ -14,7 +14,9 @@ public class NPC
 	}
 
 	public void randomizeLocation(int seedX, int seedZ)
-	{	locationX = ((double)seedX)/4.0 - 5.0;
+	{	
+		//locationX = ((double)seedX)/4.0 - 5.0;
+		locationX = 50;
 		locationY = 1.5;
 		locationZ = -2;
 	}
