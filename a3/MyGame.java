@@ -68,7 +68,7 @@ public class MyGame extends VariableFrameRateGame
 	private double startTime, prevTime, elapsedTime, amt;
 	private boolean running = false;
 
-	private GameObject ZAxis, XAxis, YAxis, terr, avatar, honeyPot, bees;
+	private GameObject ZAxis, XAxis, YAxis, terr, avatar, honeyPot, bees, sHoneyPot;
 	private ObjShape ghostS, avatarS, terrS, line1, line2, line3, honeyPotS, sphS, beesS, npcShape;
 	private AnimatedShape bearS;
 	private TextureImage ghostTx, avatarTx, hills, grass, honeyPotT, beesTx, npcTx;
@@ -98,11 +98,18 @@ public class MyGame extends VariableFrameRateGame
 	private float honeyPotZ;
 	private float honeyPotRot;
 
+	private float sHoneyPotX;
+	private float sHoneyPotY;
+	private float sHoneyPotZ;
+	private float sHoneyPotRot;
+
 	private float beesX;
 	private float beesY;
 	private float beesZ;
 	private float beesRot;
 	Random r = new Random();
+
+	private boolean gameOverBool = false;
 
 	private float vals[] = new float[16];
 
@@ -156,10 +163,10 @@ public class MyGame extends VariableFrameRateGame
 		honeyPotZ = ((Double)(engine.get("honeyPotZ"))).floatValue();
 		honeyPotRot = ((Double)(engine.get("honeyPotRot"))).floatValue();
 
-		// beesX = ((Double)(engine.get("beesX"))).floatValue();
-		// beesY = ((Double)(engine.get("beesY"))).floatValue();
-		// beesZ = ((Double)(engine.get("beesZ"))).floatValue();
-		// beesRot = ((Double)(engine.get("beesRot"))).floatValue();
+		sHoneyPotX = honeyPotX;
+		sHoneyPotY = honeyPotY;
+		sHoneyPotZ = honeyPotZ;
+		sHoneyPotRot = honeyPotRot;
 
 		terrainPos = ((Double)(engine.get("terrainPos"))).floatValue();
 		terrainScaleX = ((Double)(engine.get("terrainScaleX"))).floatValue();
@@ -190,7 +197,7 @@ public class MyGame extends VariableFrameRateGame
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
 		beesS = new ImportedModel("dolphinHighPoly.obj");
-		npcShape = new Cube();
+		npcShape = new ImportedModel("bear.obj");
 		line1 = new Line(new Vector3f(-999999.0f, 0.0f, 0.0f) , new Vector3f(999999.0f, 0.0f, 0.0f));
         line2 = new Line(new Vector3f(0.0f, -999999.0f, 0.0f) , new Vector3f(0.0f, 999999.0f, 0.0f));
         line3 = new Line(new Vector3f(0.0f, 0.0f, -999999.0f) , new Vector3f(0.0f, 0.0f, 999999.0f));
@@ -226,6 +233,18 @@ public class MyGame extends VariableFrameRateGame
 		honeyPot.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(honeyPotRot));
 		honeyPot.setLocalRotation(initialRotation);
+
+		// build sHoneyPot object
+		sHoneyPot = new GameObject(GameObject.root(), honeyPotS, honeyPotT);
+		initialTranslation = (new Matrix4f()).translation(sHoneyPotX-40.0f, sHoneyPotY-3, sHoneyPotZ-0.5f);
+		sHoneyPot.setLocalTranslation(initialTranslation);
+		sHoneyPot.setParent(honeyPot);
+		sHoneyPot.propagateTranslation(true);
+		sHoneyPot.propagateRotation(true);
+		initialScale = (new Matrix4f()).scaling(0.25f, 0.25f, 0.25f);
+		sHoneyPot.setLocalScale(initialScale);
+		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(sHoneyPotRot));
+		sHoneyPot.setLocalRotation(initialRotation);
 
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
@@ -495,7 +514,14 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalLocation(new Vector3f(loc.x(), height+0.5f, loc.z()));
 		avatarP.setTransform(toDoubleArray(new Matrix4f(avatar.getLocalTranslation()).get(vals)));
 
-
+		if(!gameOverBool){
+			for(int i=0;i<balls.length;i++){
+				loc = balls[i].getWorldLocation();
+				height = terr.getHeight(loc.x(), loc.z());
+				balls[i].setLocalLocation(new Vector3f(loc.x(), height+1, loc.z()));
+				ballsP[i].setTransform(toDoubleArray(new Matrix4f(balls[i].getLocalTranslation()).get(vals)));
+			}
+		}
 		for(int i=0;i<balls.length;i++){
 			loc = balls[i].getWorldLocation();
 			height = terr.getHeight(loc.x(), loc.z());
@@ -564,6 +590,17 @@ public class MyGame extends VariableFrameRateGame
                 avatar.setLocalLocation(new Vector3f(-90,avatar.getWorldLocation().y(), avatar.getWorldLocation().z()));
             }
         }
+
+
+		if(Math.abs(avatar.getWorldLocation().x() - honeyPot.getWorldLocation().x()) <= 0.9 && Math.abs(avatar.getWorldLocation().z() - honeyPot.getWorldLocation().z()) <= 0.9){
+			gameOverBool = true;
+		}
+
+		if(gameOverBool){
+			for(int i = 1; i < balls.length; i++){
+				balls[i].setLocalLocation(new Vector3f(balls[i].getWorldLocation().x(), balls[i].getWorldLocation().y() + 1.0f, balls[i].getWorldLocation().z()));
+			}
+		}
 	}
 
 	public void playWalk(){

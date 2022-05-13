@@ -16,9 +16,9 @@ public class NPC{
 	public void randomizeLocation(int seedX, int seedZ)
 	{	
 		//locationX = ((double)seedX)/4.0 - 5.0;
-		locationX = 50;
-		locationY = 1.5;
-		locationZ = -2;
+		locationX = 25;
+		locationY = 2;
+		locationZ = 0;
 	}
 
 	public double getX() { return locationX; }
@@ -31,15 +31,8 @@ public class NPC{
 
 	public void updateLocation() 
     {    
-        if (locationX > -50){
-            locationX-=0.2;
-            //System.out.println("locationXi: " + locationX);
-
-        }else if (locationX < -50){
-            locationX=0;
-            //System.out.println("locationX0: " + locationX);
-        }else{
-            locationX-=0.1;
-        }
+		if (locationZ > 25) dir=-0.1;
+		if (locationZ < -25) dir=0.1;
+		locationZ = locationZ + dir;
     }
 }
