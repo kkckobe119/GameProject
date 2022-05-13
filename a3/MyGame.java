@@ -54,7 +54,7 @@ public class MyGame extends VariableFrameRateGame
 	private InputManager im;
 	private GhostManager gm;
 	private IAudioManager audioMgr; 
- 	private Sound beeSound;
+ 	private Sound[] beeSound = new Sound[5];
 
 	private GameObject ball1, ball2, plane;
 	private PhysicsEngine physicsEngine;
@@ -191,8 +191,10 @@ public class MyGame extends VariableFrameRateGame
 		
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("bear.obj"); /*new ImportedModel("dolphinHighPoly.obj");*/
-		//bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
-  		//bearS.loadAnimation("WALK", "walk.rka"); 
+
+		// To run comment 196/197
+		// bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
+  		// bearS.loadAnimation("WALK", "walk.rka"); 
 
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
@@ -264,7 +266,6 @@ public class MyGame extends VariableFrameRateGame
 
 	@Override
 	public void initializeGame(){
-		//System.out.println(avatarX + " " + avatarY + " " + avatarZ);
 
 		prevTime = System.currentTimeMillis();
 		startTime = System.currentTimeMillis();
@@ -409,24 +410,22 @@ public class MyGame extends VariableFrameRateGame
    		 return; 
   		 } 
   		resource1 = audioMgr.createAudioResource("assets/sounds/bee.wav", AudioResourceType.AUDIO_SAMPLE); 
-  		//resource2 = audioMgr.createAudioResource( "assets/sounds/ocean.wav", AudioResourceType.AUDIO_SAMPLE); 
-  		beeSound = new Sound(resource1, SoundType.SOUND_EFFECT, 0, true); 
-  		//oceanSound = new Sound(resource2, SoundType.SOUND_EFFECT, 100, true); 
-  		beeSound.initialize(audioMgr); 
-  		//oceanSound.initialize(audioMgr); 
-  		beeSound.setMaxDistance(10.0f); 
-  		beeSound.setMinDistance(0.5f); 
-  		beeSound.setRollOff(5.0f); 
-  		//oceanSound.setMaxDistance(10.0f); 
-  		//oceanSound.setMinDistance(0.5f); 
-  		//oceanSound.setRollOff(5.0f); 
-  		//beeSound.setLocation(ball1.getWorldLocation()); 
-		for(int i=0;i<balls.length;i++){
-			beeSound.setLocation(balls[i].getWorldLocation()); 
+  		//resource2 = audioMgr.createAudioResource( "assets/sounds/ocean.wav", AudioResourceType.AUDIO_SAMPLE);
+		for(int i=0;i<beeSound.length;i++){
+			beeSound[i] = new Sound(resource1, SoundType.SOUND_EFFECT, 100, true); 
+			beeSound[i].initialize(audioMgr); 
+			//oceanSound.initialize(audioMgr); 
+			beeSound[i].setMaxDistance(10.0f); 
+			beeSound[i].setMinDistance(0.5f); 
+			beeSound[i].setRollOff(5.0f); 
+		}
+
+		for(int i=0;i<beeSound.length;i++){
+			beeSound[i].setLocation(balls[i].getWorldLocation()); 
+			beeSound[i].play();
 		}
   		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
-  		setEarParameters(); 
-  		beeSound.play(); 
+  		setEarParameters();  
  	} 
 
  	public void setEarParameters() 
@@ -488,10 +487,13 @@ public class MyGame extends VariableFrameRateGame
 		String elapsTimeStr = Integer.toString(elapsTimeSec);
 		String counterStr = Integer.toString(counter);
 		String dispStr1 = "Time = " + elapsTimeStr;
-		String dispStr2 = "camera position = "
-			+ (c.getLocation()).x()
-			+ ", " + (c.getLocation()).y()
-			+ ", " + (c.getLocation()).z();
+		String dispStr2;
+		if(!gameOverBool){
+			dispStr2 = "Get to the honey to win!";
+		}else{
+			dispStr2 = "You win!";
+		}
+
 		Vector3f hud1Color = new Vector3f(0,0,1);
 		Vector3f hud2Color = new Vector3f(1,1,1);
 		(engine.getHUDmanager()).setHUD1(dispStr1, hud1Color, 15, 15);
@@ -522,12 +524,6 @@ public class MyGame extends VariableFrameRateGame
 				ballsP[i].setTransform(toDoubleArray(new Matrix4f(balls[i].getLocalTranslation()).get(vals)));
 			}
 		}
-		for(int i=0;i<balls.length;i++){
-			loc = balls[i].getWorldLocation();
-			height = terr.getHeight(loc.x(), loc.z());
-			balls[i].setLocalLocation(new Vector3f(loc.x(), height+1, loc.z()));
-			ballsP[i].setTransform(toDoubleArray(new Matrix4f(balls[i].getLocalTranslation()).get(vals)));
-		}
 
 		// terrain follow
 		loc = honeyPot.getWorldLocation();
@@ -539,7 +535,6 @@ public class MyGame extends VariableFrameRateGame
 		for(int i=0;i<balls.length;i++){
 			loc = balls[i].getWorldLocation();
 			if (balls[i].getWorldLocation().x() < -89f){
-				//balls[i].setLocalLocation(new Vector3f(200f, loc.y(), loc.z()));
 				balls[i].setLocalTranslation((new Matrix4f()).translation(100, loc.y(), r.nextInt(50)-25));
 				ballsP[i].setTransform(toDoubleArray(new Matrix4f(balls[i].getLocalTranslation()).get(vals)));
 			}
@@ -560,14 +555,12 @@ public class MyGame extends VariableFrameRateGame
 		}
 
 		// update sound 
-		// beeSound.setLocation(ball1.getWorldLocation()); 
-
-		for(int i=0;i<balls.length;i++){
-			beeSound.setLocation(balls[i].getWorldLocation()); 
+		for(int i=0;i<beeSound.length;i++){
+			beeSound[i].setLocation(balls[i].getWorldLocation()); 
 		}
 
-		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
 		setEarParameters(); 
+		// To run comment 565
 		//bearS.updateAnimation();
 
 		if(avatar.getWorldLocation().z() > 22){
@@ -586,13 +579,13 @@ public class MyGame extends VariableFrameRateGame
             Vector3f test = balls[i].getWorldLocation();
             Vector3f avtest = avatar.getWorldLocation();
 
-            if(Math.abs(avtest.x() - test.x()) <= 0.9 && Math.abs(avtest.z() - test.z()) <= 0.9){
+            if(Math.abs(avtest.x() - test.x()) <= 0.9 && Math.abs(avtest.y() - test.y()) <= 0.9 && Math.abs(avtest.z() - test.z()) <= 0.9){
                 avatar.setLocalLocation(new Vector3f(-90,avatar.getWorldLocation().y(), avatar.getWorldLocation().z()));
             }
         }
 
 
-		if(Math.abs(avatar.getWorldLocation().x() - honeyPot.getWorldLocation().x()) <= 0.9 && Math.abs(avatar.getWorldLocation().z() - honeyPot.getWorldLocation().z()) <= 0.9){
+		if(Math.abs(avatar.getWorldLocation().x() - honeyPot.getWorldLocation().x()) <= 0.9 && Math.abs(avatar.getWorldLocation().y() - honeyPot.getWorldLocation().y()) <= 0.9 && Math.abs(avatar.getWorldLocation().z() - honeyPot.getWorldLocation().z()) <= 0.9){
 			gameOverBool = true;
 		}
 
@@ -604,12 +597,14 @@ public class MyGame extends VariableFrameRateGame
 	}
 
 	public void playWalk(){
-		//bearS.stopAnimation(); 
-    	//bearS.playAnimation("WALK", 0.5f, AnimatedShape.EndType.LOOP, 0); 
+		// To run comment 601/602
+		// bearS.stopAnimation(); 
+    	// bearS.playAnimation("WALK", 0.5f, AnimatedShape.EndType.LOOP, 0); 
 	}
 
 	public void stopWalk(){
-		//bearS.stopAnimation(); 
+		// To run comment 607
+		// bearS.stopAnimation(); 
 	}
 
 	private void checkForCollisions(){
@@ -632,7 +627,6 @@ public class MyGame extends VariableFrameRateGame
 				contactPoint = manifold.getContactPoint(j);
 				if (contactPoint.getDistance() < 0.0f){
 					System.out.println("---- hit between " + obj1 + " and " + obj2);
-					//System.out.println("Avatar UID: " + avatarP.getUID());
 					break;
 				}
 			}
