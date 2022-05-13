@@ -84,7 +84,6 @@ public class CameraOrbit3D
 				radActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
 				im.associateAction(con, net.java.games.input.Component.Identifier.Axis.POV,
 				elActionC, InputManager.INPUT_ACTION_TYPE.REPEAT_WHILE_DOWN);
-		
 			}
 		}
 

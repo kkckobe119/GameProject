@@ -130,6 +130,23 @@ public class ProtocolClient extends GameConnectionClient
 				ghostManager.updateGhostAvatar(ghostID, ghostPosition);
 			}
 
+			// // Handle ROTATE message
+			// // Format: (move,remoteId,x,y,z)
+			if (messageTokens[0].compareTo("rotate") == 0)
+			{
+				// rotate a ghost avatar
+				// Parse out the id into a UUID
+				UUID ghostID = UUID.fromString(messageTokens[1]);
+				
+				// Parse out the position into a Vector3f
+				Vector3f ghostRotation = new Vector3f(
+					Float.parseFloat(messageTokens[2]),
+					Float.parseFloat(messageTokens[3]),
+					Float.parseFloat(messageTokens[4]));
+				
+				ghostManager.updateGhostAvatar(ghostID, ghostRotation);
+			}
+
 			// ------------- HANDLE NPC MESSAGES ---------------
 
 			// Handle CREATE_NPC message
@@ -159,6 +176,19 @@ public class ProtocolClient extends GameConnectionClient
 					Float.parseFloat(messageTokens[3]));
 				double gSize = Double.parseDouble(messageTokens[4]);
 				updateGhostNPC(ghostPosition, gSize);
+			}
+
+			// Handle ROTATE NPC message
+			// Format: (rnpc,npcID,x,y,z)
+			if(messageTokens[0].compareTo("rnpc") == 0)
+			{	// move a ghost npc
+				// Parse out the position into a Vector3f
+				Vector3f ghostRotation = new Vector3f(
+					Float.parseFloat(messageTokens[1]),
+					Float.parseFloat(messageTokens[2]),
+					Float.parseFloat(messageTokens[3]));
+				double gSize = Double.parseDouble(messageTokens[4]);
+				updateGhostNPC(ghostRotation, gSize);
 			}
 
 			// Handle isNear NPC message

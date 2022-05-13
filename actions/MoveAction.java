@@ -35,20 +35,21 @@ public class MoveAction extends AbstractInputAction
 				oldPosition = av.getWorldLocation();
 				fwdDirection = new Vector4f(0f,0f,1f,1f);
 				fwdDirection.mul(av.getWorldRotation());
-				fwdDirection.mul(0.05f);
+				fwdDirection.mul(0.5f);
 				newPosition = oldPosition.add(fwdDirection.x(), fwdDirection.y(), fwdDirection.z());
 				av.setLocalLocation(newPosition);
 		}else if(e.getComponent().toString().equals("S") || e.getValue() > 0.2){
 				oldPosition = av.getWorldLocation();
 				bwdDirection = new Vector4f(0f,0f,1f,1f);
 				bwdDirection.mul(av.getWorldRotation());
-				bwdDirection.mul(-0.05f);
+				bwdDirection.mul(-0.5f);
 				newPosition = oldPosition.add(bwdDirection.x(), bwdDirection.y(), bwdDirection.z());
 				av.setLocalLocation(newPosition);
 		}
 		game.stopWalk(); 
     	game.playWalk(); 
 		protClient.sendMoveMessage(av.getWorldLocation());
+		//protClient.sendMoveMessage(av.getLocalRotation());
 	}
 }
 

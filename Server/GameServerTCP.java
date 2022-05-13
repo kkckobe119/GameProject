@@ -67,6 +67,26 @@ public class GameServerTCP extends GameConnectionServer<UUID>
 			e.printStackTrace();
 		}
 	}
+
+		/**
+	 * Informs all clients of the new positions of every NPC.
+	 * <p>
+	 * Message Format: (rnpc,npcID,x,y,z,state) where x, y, and z represent the position.
+	 */
+	public void sendNPCRotateinfo()
+	{	try 
+		{	String message = new String("rnpc");
+			message += "," + (npcCtrl.getNPC()).getX();
+			message += "," + (npcCtrl.getNPC()).getY();
+			message += "," + (npcCtrl.getNPC()).getZ();
+			message += "," + (npcCtrl.getNPC()).getSize();
+			sendPacketToAll(message);
+		}
+		catch (IOException e) 
+		{	System.out.println("clients not ready for NPCs yet");
+			e.printStackTrace();
+		}
+	}
 	
 	public void sendNPCstart(UUID clientID)
 	{	try 

@@ -14,6 +14,7 @@ import tage.input.*;
 import tage.input.action.*;
 
 import java.lang.Math;
+import java.util.Random;
 import java.awt.*;
 
 import java.awt.event.*;
@@ -57,7 +58,10 @@ public class MyGame extends VariableFrameRateGame
 
 	private GameObject ball1, ball2, plane;
 	private PhysicsEngine physicsEngine;
-	private PhysicsObject ball1P, ball2P, planeP, avatarP;
+	private PhysicsObject ball1P, ball2P, planeP, avatarP, honeyPotP;
+
+	private GameObject[] balls = new GameObject[125];
+	private PhysicsObject[] ballsP = new PhysicsObject[125];
 
 	private int counter=0;
 	private Vector3f currentPosition;
@@ -68,7 +72,7 @@ public class MyGame extends VariableFrameRateGame
 	private ObjShape ghostS, avatarS, terrS, line1, line2, line3, honeyPotS, sphS, beesS, npcShape;
 	private AnimatedShape bearS;
 	private TextureImage ghostTx, avatarTx, hills, grass, honeyPotT, beesTx, npcTx;
-	private Light lightP;
+	private Light lightP, lightP2;
 	private int fluffyClouds, lakeIslands; // skyboxes
 	private CameraOrbit3D orbitController;
 
@@ -98,6 +102,7 @@ public class MyGame extends VariableFrameRateGame
 	private float beesY;
 	private float beesZ;
 	private float beesRot;
+	Random r = new Random();
 
 	private float vals[] = new float[16];
 
@@ -179,8 +184,8 @@ public class MyGame extends VariableFrameRateGame
 		
 		terrS = new TerrainPlane(1000);
 		ghostS = new ImportedModel("bear.obj"); /*new ImportedModel("dolphinHighPoly.obj");*/
-		bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
-  		bearS.loadAnimation("WALK", "walk.rka"); 
+		//bearS = new AnimatedShape("bear.rkm", "bear.rks"); 
+  		//bearS.loadAnimation("WALK", "walk.rka"); 
 
 		honeyPotS = new ImportedModel("honeyPot.obj");
 		sphS = new Sphere();
@@ -195,7 +200,7 @@ public class MyGame extends VariableFrameRateGame
 	public void loadTextures()
 	{	avatarTx = new TextureImage("bearUV.png");
 		ghostTx = new TextureImage("bearUV.png");
-		hills = new TextureImage("hills.jpg");
+		hills = new TextureImage("hills3.jpg");
 		grass = new TextureImage("grass.jpg");
 		honeyPotT = new TextureImage("pot_color.png");
 		beesTx = honeyPotT;
@@ -207,11 +212,11 @@ public class MyGame extends VariableFrameRateGame
 	{	Matrix4f initialTranslation, initialRotation, initialScale;
 
 		// build dolphin avatar
-		avatar = new GameObject(GameObject.root(), bearS, avatarTx); //avatar = new GameObject(GameObject.root(), avatarS, avatarTx);
+		avatar = new GameObject(GameObject.root(), avatarS, avatarTx); //avatar = new GameObject(GameObject.root(), avatarS, avatarTx);
 		initialTranslation = (new Matrix4f()).translation(avatarX, avatarY, avatarZ);
 		avatar.setLocalTranslation(initialTranslation);
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(avatarRot));
-		initialScale = (new Matrix4f()).scaling(0.25f, 0.25f, 0.25f);
+		initialScale = (new Matrix4f()).scaling(0.5f, 0.5f, 0.5f);
 		avatar.setLocalScale(initialScale);
 		avatar.setLocalRotation(initialRotation);
 
@@ -222,13 +227,6 @@ public class MyGame extends VariableFrameRateGame
 		initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(honeyPotRot));
 		honeyPot.setLocalRotation(initialRotation);
 
-		// // build bees object
-		// bees = new GameObject(GameObject.root(), beesS, beesTx);
-		// initialTranslation = (new Matrix4f()).translation(beesX, beesY, beesZ);
-		// bees.setLocalTranslation(initialTranslation);
-		// initialRotation = (new Matrix4f()).rotationY((float)java.lang.Math.toRadians(beesRot));
-		// bees.setLocalRotation(initialRotation);
-
 		// build terrain object
 		terr = new GameObject(GameObject.root(), terrS, grass);
 		initialTranslation = (new Matrix4f()).translation(terrainPos,terrainPos,terrainPos);
@@ -236,17 +234,13 @@ public class MyGame extends VariableFrameRateGame
 		initialScale = (new Matrix4f()).scaling(terrainScaleX, terrainScaleY, terrainScaleZ);
 		terr.setLocalScale(initialScale);
 		terr.setHeightMap(hills);
-		//terr.getRenderStates().hasLighting(true);
 
-		// -------------- adding a Sphere -----------------
-		ball1 = new GameObject(GameObject.root(), sphS, beesTx);
-		ball1.setLocalTranslation((new Matrix4f()).translation(-2.0f, 10.0f, -2.0f));
-		ball1.setLocalScale((new Matrix4f()).scaling(0.75f));
-
-		// -------------- adding a second sphere -------------
-		ball2 = new GameObject(GameObject.root(), sphS, beesTx);
-		ball2.setLocalTranslation((new Matrix4f()).translation(-0.5f, 8.0f, 10.0f));
-		ball2.setLocalScale((new Matrix4f()).scaling(0.75f));
+		// Set bees location again
+		for(int i=0;i<balls.length;i++){
+			balls[i] = new GameObject(GameObject.root(), beesS, beesTx);
+			balls[i].setLocalTranslation((new Matrix4f()).translation(r.nextInt(300)+100, 10.0f, r.nextInt(50)-25));
+			balls[i].setLocalScale((new Matrix4f()).scaling(0.75f));
+		}
 	}
 
 	@Override
@@ -263,8 +257,12 @@ public class MyGame extends VariableFrameRateGame
 		Light.setGlobalAmbient(.5f, .5f, .5f);
 
 		lightP = new Light();
-		lightP.setLocation(new Vector3f(5.0f, 5f, 0f));
+		lightP.setLocation(new Vector3f(-90.0f, 5f, 0f));
 		(engine.getSceneGraph()).addLight(lightP);
+
+		lightP2 = new Light();
+		lightP2.setLocation(new Vector3f(35.0f, 5f, 0f));
+		(engine.getSceneGraph()).addLight(lightP2);
 
 		// ----------------- INPUTS SECTION -----------------------------
 	
@@ -290,19 +288,7 @@ public class MyGame extends VariableFrameRateGame
 		float up[] = {0,1,0};
 		double[] tempTransform;
 
-		Matrix4f translation = new Matrix4f(ball1.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		ball1P = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
-		ball1P.setBounciness(1.0f);
-		ball1.setPhysicsObject(ball1P);
-		
-		translation = new Matrix4f(ball2.getLocalTranslation());
-		tempTransform = toDoubleArray(translation.get(vals));
-		ball2P = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
-		ball2P.setBounciness(1.0f);
-		ball2.setPhysicsObject(ball2P);
-		
-		translation = new Matrix4f(terr.getLocalTranslation());
+		Matrix4f translation = new Matrix4f(terr.getLocalTranslation());
 		tempTransform = toDoubleArray(translation.get(vals));
 		planeP = physicsEngine.addStaticPlaneObject(physicsEngine.nextUID(), tempTransform, up, 0.0f);
 		planeP.setBounciness(1.0f);
@@ -312,6 +298,31 @@ public class MyGame extends VariableFrameRateGame
 		tempTransform = toDoubleArray(translation.get(vals));
 		avatarP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
 		avatarP.setBounciness(0.0f);
+
+		translation = new Matrix4f(honeyPot.getLocalTranslation());
+		tempTransform = toDoubleArray(translation.get(vals));
+		honeyPotP = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		honeyPotP.setBounciness(0.0f);
+
+		for(int i=0; i<balls.length; i++){
+			translation = new Matrix4f(balls[i].getLocalTranslation());
+			tempTransform = toDoubleArray(translation.get(vals));
+			ballsP[i] = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+			ballsP[i].setBounciness(1.0f);
+			balls[i].setPhysicsObject(ballsP[i]);
+		}
+
+		// Matrix4f translation = new Matrix4f(ball1.getLocalTranslation());
+		// tempTransform = toDoubleArray(translation.get(vals));
+		// ball1P = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		// ball1P.setBounciness(1.0f);
+		// ball1.setPhysicsObject(ball1P);
+		
+		// translation = new Matrix4f(ball2.getLocalTranslation());
+		// tempTransform = toDoubleArray(translation.get(vals));
+		// ball2P = physicsEngine.addSphereObject(physicsEngine.nextUID(), mass, tempTransform, 0.75f);
+		// ball2P.setBounciness(1.0f);
+		// ball2.setPhysicsObject(ball2P);
 
 		//avatar.setPhysicsObject(avatarP);
 
@@ -380,7 +391,7 @@ public class MyGame extends VariableFrameRateGame
   		 } 
   		resource1 = audioMgr.createAudioResource("assets/sounds/bee.wav", AudioResourceType.AUDIO_SAMPLE); 
   		//resource2 = audioMgr.createAudioResource( "assets/sounds/ocean.wav", AudioResourceType.AUDIO_SAMPLE); 
-  		beeSound = new Sound(resource1, SoundType.SOUND_EFFECT, 100, true); 
+  		beeSound = new Sound(resource1, SoundType.SOUND_EFFECT, 0, true); 
   		//oceanSound = new Sound(resource2, SoundType.SOUND_EFFECT, 100, true); 
   		beeSound.initialize(audioMgr); 
   		//oceanSound.initialize(audioMgr); 
@@ -390,7 +401,10 @@ public class MyGame extends VariableFrameRateGame
   		//oceanSound.setMaxDistance(10.0f); 
   		//oceanSound.setMinDistance(0.5f); 
   		//oceanSound.setRollOff(5.0f); 
-  		beeSound.setLocation(ball1.getWorldLocation()); 
+  		//beeSound.setLocation(ball1.getWorldLocation()); 
+		for(int i=0;i<balls.length;i++){
+			beeSound.setLocation(balls[i].getWorldLocation()); 
+		}
   		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
   		setEarParameters(); 
   		beeSound.play(); 
@@ -481,43 +495,29 @@ public class MyGame extends VariableFrameRateGame
 		avatar.setLocalLocation(new Vector3f(loc.x(), height+0.5f, loc.z()));
 		avatarP.setTransform(toDoubleArray(new Matrix4f(avatar.getLocalTranslation()).get(vals)));
 
-		loc = ball1.getWorldLocation();
-		height = terr.getHeight(loc.x(), loc.z());
-		ball1.setLocalLocation(new Vector3f(loc.x(), height+1, loc.z()));
-		ball1P.setTransform(toDoubleArray(new Matrix4f(ball1.getLocalTranslation()).get(vals)));
 
-		loc = ball2.getWorldLocation();
-		height = terr.getHeight(loc.x(), loc.z());
-		ball2.setLocalLocation(new Vector3f(loc.x(), height+1, loc.z()));
-		ball2P.setTransform(toDoubleArray(new Matrix4f(ball2.getLocalTranslation()).get(vals)));
-
-
-		loc = ball1.getWorldLocation();
-		// height = terr.getHeight(loc.x(), loc.z());
-		// //height = 5;
-		if (ball1.getWorldLocation().x() < -50f){
-			ball1.setLocalLocation(new Vector3f(50f, loc.y(), loc.z()));
-			ball1P.setTransform(toDoubleArray(new Matrix4f(ball1.getLocalTranslation()).get(vals)));
+		for(int i=0;i<balls.length;i++){
+			loc = balls[i].getWorldLocation();
+			height = terr.getHeight(loc.x(), loc.z());
+			balls[i].setLocalLocation(new Vector3f(loc.x(), height+1, loc.z()));
+			ballsP[i].setTransform(toDoubleArray(new Matrix4f(balls[i].getLocalTranslation()).get(vals)));
 		}
 
-		loc = ball2.getWorldLocation();
-		// height = terr.getHeight(loc.x(), loc.z());
-		if (ball2.getWorldLocation().x() < -50f){
-			//System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-			ball2.setLocalLocation(new Vector3f(50f, loc.y(), loc.z()));
-			ball2P.setTransform(toDoubleArray(new Matrix4f(ball2.getLocalTranslation()).get(vals)));
-		}
-		//avatar.setPhysicsObject(avatarP);
+		// terrain follow
+		loc = honeyPot.getWorldLocation();
+		height = terr.getHeight(loc.x(), loc.z());
+		honeyPot.setLocalLocation(new Vector3f(loc.x(), height, loc.z()));
+		honeyPotP.setTransform(toDoubleArray(new Matrix4f(honeyPot.getLocalTranslation()).get(vals)));
 
-		//c = (engine.getRenderSystem().getViewport("MAIN").getCamera());
-		//Vector3f loc = dolphin.getWorldLocation();
-		// Vector3f fwd = dolphin.getWorldForwardVector();
-		// Vector3f up = dolphin.getWorldUpVector();
-		// Vector3f right = dolphin.getWorldRightVector();
-		// c.setU(right);
-		// c.setV(up);
-		// c.setN(fwd);
-		// c.setLocation(loc.add(up.mul(1f)).add(fwd.mul(-2f)));
+
+		for(int i=0;i<balls.length;i++){
+			loc = balls[i].getWorldLocation();
+			if (balls[i].getWorldLocation().x() < -89f){
+				//balls[i].setLocalLocation(new Vector3f(200f, loc.y(), loc.z()));
+				balls[i].setLocalTranslation((new Matrix4f()).translation(100, loc.y(), r.nextInt(50)-25));
+				ballsP[i].setTransform(toDoubleArray(new Matrix4f(balls[i].getLocalTranslation()).get(vals)));
+			}
+		}
 
 		if(running)
 		{	Matrix4f mat = new Matrix4f();
@@ -534,20 +534,45 @@ public class MyGame extends VariableFrameRateGame
 		}
 
 		// update sound 
-		beeSound.setLocation(ball1.getWorldLocation()); 
+		// beeSound.setLocation(ball1.getWorldLocation()); 
+
+		for(int i=0;i<balls.length;i++){
+			beeSound.setLocation(balls[i].getWorldLocation()); 
+		}
+
 		//oceanSound.setLocation(rainTorus.getWorldLocation()); 
 		setEarParameters(); 
-		bearS.updateAnimation();
-		
+		//bearS.updateAnimation();
+
+		if(avatar.getWorldLocation().z() > 22){
+            avatar.setLocalLocation(new Vector3f(avatar.getWorldLocation().x(), avatar.getWorldLocation().y(), 22f));
+        }else if(avatar.getWorldLocation().z() < -22){
+            avatar.setLocalLocation(new Vector3f(avatar.getWorldLocation().x(), avatar.getWorldLocation().y(), -22f));
+        }
+
+		if(avatar.getWorldLocation().x() > 40){
+            avatar.setLocalLocation(new Vector3f(40, avatar.getWorldLocation().y(), avatar.getWorldLocation().z()));
+        }else if(avatar.getWorldLocation().x() < -91){
+            avatar.setLocalLocation(new Vector3f(-91, avatar.getWorldLocation().y(), avatar.getWorldLocation().z()));
+        }
+
+		for(int i = 1; i < balls.length; i++){
+            Vector3f test = balls[i].getWorldLocation();
+            Vector3f avtest = avatar.getWorldLocation();
+
+            if(Math.abs(avtest.x() - test.x()) <= 0.9 && Math.abs(avtest.z() - test.z()) <= 0.9){
+                avatar.setLocalLocation(new Vector3f(-90,avatar.getWorldLocation().y(), avatar.getWorldLocation().z()));
+            }
+        }
 	}
 
 	public void playWalk(){
-		bearS.stopAnimation(); 
-    	bearS.playAnimation("WALK", 0.5f, AnimatedShape.EndType.LOOP, 0); 
+		//bearS.stopAnimation(); 
+    	//bearS.playAnimation("WALK", 0.5f, AnimatedShape.EndType.LOOP, 0); 
 	}
 
 	public void stopWalk(){
-		bearS.stopAnimation(); 
+		//bearS.stopAnimation(); 
 	}
 
 	private void checkForCollisions(){
